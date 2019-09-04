@@ -1,0 +1,38 @@
+#+startup: latexpreview
+
+- Gallium Nitrate
+- Gallium Oxide
+
+** [[https://en.wikipedia.org/wiki/Charge_carrier_density][Charge Carrier Density]]
+
+   \(n_0\): number of electrons per unit volume (electron density) in
+   the conduction band.
+
+   \(p_0\): number of holes per unit volume in the valance band.
+
+   \(n_0 = \int_{E_c}^{E_{top}}N(E)dE\)
+
+   \(N(E) = g(E)f(E)\)
+
+*** [[https://en.wikipedia.org/wiki/Charge_carrier_density#Semiconductors][Semiconductor Calculation Simplification]]
+	Treat electrons as gas particles instead of fermions.
+
+	
+	\(n_0=2\left(\frac{m'kT}{2\pi h^2}\right)^{3/2} {\rm e}^{\frac{-(E_c-E_f)}{k_B T}}\)
+	
+	
+
+*** [[https://en.wikipedia.org/wiki/Valence_and_conduction_bands][Valence and Conduction Bands]]
+	[[./figures/2019-09-02_energyBands.png]]
+	
+	If electrons in the valence band gain enough energy, they become
+    free (conduction) electrons in the conduction band.
+
+	[[./figures/2019-09-02_forbiddenEnergyMaterialVariation.jpg]]
+
+	
+
+**** [[Https://en.wikipedia.org/wiki/Fermi_level][Fermi Level]]
+*** [[https://en.wikipedia.org/wiki/Pauli_exclusion_principle][Pauli Exclusion Principle]]
+*** [[https://en.wikipedia.org/wiki/Fermion][Fermions]]
+*** [[https://en.wikipedia.org/wiki/Boson][Bosons]]
