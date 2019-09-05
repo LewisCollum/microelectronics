@@ -1,38 +1,226 @@
 #+startup: latexpreview
+#+startup: inlineimages
 
-- Gallium Nitrate
-- Gallium Oxide
+[[https://ecee.colorado.edu/~bart/book/book/contents.htm][Principles of Electronic Devices]]
 
-** [[https://en.wikipedia.org/wiki/Charge_carrier_density][Charge Carrier Density]]
+* source
+** constants
+#+BEGIN_SRC python :tangle source/constants.py :eval no
+from enum import Enum
+from math import pi
 
-   \(n_0\): number of electrons per unit volume (electron density) in
-   the conduction band.
+h = 6.626 * 10**-34 #Planck's
+h_bar = h/(2*pi) #Reduced Planck's
+k = 1.38 * 10**-23 #J/K Boltzmann
+k_B = 8.62 * 10**-5 #ev/K Boltzmann
+restingElectronMass = 9.11*10**-31
+#+END_SRC
 
-   \(p_0\): number of holes per unit volume in the valance band.
+** kelvin
+#+BEGIN_SRC python :tangle source/kelvin.py :dir source :eval no
+import constants
+class Kelvin:
+    celsiusOffset = 273.15
+    
+    def __init__(self, kelvin):
+        self.kelvin = kelvin
 
-   \(n_0 = \int_{E_c}^{E_{top}}N(E)dE\)
+    @property
+    def celsius(self):
+        return self.kelvin - Kelvin.celsiusOffset
+    
+    @classmethod
+    def fromCelsius(cls, celsius):
+        return Kelvin(celsius+Kelvin.celsiusOffset)
+#+END_SRC
+** carrier mass
+#+BEGIN_SRC python :tangle source/carrier_mass.py
+from __future__ import annotations
+import constants as const
 
-   \(N(E) = g(E)f(E)\)
+class CarrierMass:
+    def __init__(self, electronMass, holeMass):
+        self.electron = electronMass
+        self.hole = holeMass
 
+    @classmethod
+    def fromRestingElectronMassRatio(cls, electronMassRatio, holeMassRatio) -> CarrierMass:
+        return CarrierMass(
+            electronMass = electronMassRatio*const.restingElectronMass,
+            holeMass = holeMassRatio*const.restingElectronMass)
+#+END_SRC
+** semiconductor carrier density
+#+BEGIN_SRC python :tangle source/semiconductor_carrier_density.py :eval no
+import constants as const
+from kelvin import Kelvin
+from density import Density, CubicMeters
+from carrier_mass import CarrierMass
+from math import pi
+
+class SemiconductorCarrierMasses:
+    def __init__(self, stateDensity: CarrierMass, conductivity: CarrierMass):
+        self.stateDensity = stateDensity
+        self.conductivity = conductivity
+
+    @classmethod
+    def silicon(cls):
+        return SemiconductorCarrierMasses(
+            CarrierMass.fromRestingElectronMassRatio(1.08, 0.811),
+            CarrierMass.fromRestingElectronMassRatio(0.26, 0.386))
+
+    @classmethod
+    def germanium(cls):
+        return SemiconductorCarrierMasses(
+            CarrierMass.fromRestingElectronMassRatio(0.55, 0.37),
+            CarrierMass.fromRestingElectronMassRatio(0.12, 0.21))
+
+        
+class IntrinsicSemiconductorStateDensity:
+    @classmethod
+    def valenceBand(cls, carrierMass: CarrierMass, kelvin: Kelvin):
+        return cls.fromCarrierMass(carrierMass.hole, kelvin)
+
+    @classmethod
+    def conductionBand(cls, carrierMass: CarrierMass, kelvin: Kelvin):
+        return cls.fromCarrierMass(carrierMass.electron, kelvin)
+
+    @classmethod
+    def fromCarrierMass(cls, mass: float, kelvin: Kelvin):
+        carriersPerCubicMeter = CubicMeters(2*(2*pi * mass * const.k * kelvin.kelvin / const.h**2)**(3/2))
+        return Density(carriersPerCubicMeter)
+#+END_SRC
+** density
+#+BEGIN_SRC python :tangle source/density.py :eval no
+from __future__ import annotations
+
+class CubicMeters:
+    def __init__(self, cubicMeters):
+        self.cubicMeters = cubicMeters
+
+    def asCubicCentimeters(self) -> CubicCentimeters:
+        return CubicCentimeters(self.cubicMeters / 10**6)
+        
+class CubicCentimeters:
+    def __init__(self, cubicCentimeters):
+        self.cubicCentimeters = cubicCentimeters
+
+    def asCubicMeters(self) -> CubicMeters:
+        return CubicMeters(self.cubicCentimeters * 10**6) 
+
+class Density:
+    def __init__(self, partsPerCubicMeter: CubicMeters):
+        self.perCubicMeter = partsPerCubicMeter
+
+    @property
+    def perCubicCentimeter(self) -> CubicCentimeters:
+        return self.perCubicMeter.asCubicCentimeters()
+
+    @classmethod
+    def fromPartsPerCubicMeter(partsPerCubicMeter: CubicMeters) -> Density:
+        return Density(partsPerCubicMeter)
+
+    @classmethod
+    def fromPartsPerCubicCentimeter(partsPerCubicCentimeter: CubicCentimeters) -> Density:
+        return Density(partsPerCubicCentimeter.asCubicMeters())
+#+END_SRC
+* homework script
+** HW1_3.1
+#+BEGIN_SRC python :dir source :results output
+from kelvin import Kelvin
+import constants as const
+import semiconductor_carrier_density as scd
+from carrier_mass import CarrierMass
+
+carrierMass = scd.SemiconductorCarrierMasses.silicon().stateDensity
+
+t = {
+    "55C": Kelvin.fromCelsius(55),
+    "0C": Kelvin.fromCelsius(0),
+    "20C": Kelvin.fromCelsius(20),
+    "75C": Kelvin.fromCelsius(75),
+    "125C": Kelvin.fromCelsius(125)
+}
+
+B = {
+    "55C": scd.IntrinsicSemiconductorStateDensity.conductionBand(
+	carrierMass, t["55C"]).perCubicCentimeter.cubicCentimeters, 
+    "0C": None,
+    "20C": None,
+    "75C": None,
+    "125C": None
+}
+
+Nc = scd.IntrinsicSemiconductorStateDensity.conductionBand(
+    carrierMass,
+    Kelvin(300)).perCubicCentimeter.cubicCentimeters
+
+print(Nc)
+
+Nv = scd.IntrinsicSemiconductorStateDensity.valenceBand(
+    carrierMass,
+    Kelvin(300)).perCubicCentimeter.cubicCentimeters
+
+print(Nv)
+
+import math
+N = math.sqrt(Nv*Nc)
+
+print(N)
+#print((2**(2/3)*2*math.pi * const. * const.k / const.h**2)**(3/2))
+#print(N*math.exp(-1.12/(2*Kelvin.fromCelsius(0).kelvin*8.62*10**-5)))
+#print(B["55C"]*math.exp(-1.12/(2*t["55C"].kelvin*8.62*10**-5)))
+#+END_SRC
+
+#+RESULTS:
+: 2.8148756482158694e+19
+: 1.8317021788566563e+19
+: 2.270685768231164e+19
+: 4.826604335075221e+21
+
+* notes
+** [[https://en.wikipedia.org/wiki/Valence_and_conduction_bands][Valence and Conduction Bands]]
+	[[./figures/2019-09-02_energyBands.png]]
+	
+	If electrons in the valence band gain enough energy, they become
+    free (conduction) electrons in the conduction band.
+
+	[[./figures/2019-09-02_forbiddenEnergyMaterialVariation.png]]
+
+**** [[Https://en.wikipedia.org/wiki/Fermi_level][Fermi Level]]
+
+** Charge Carrier Density
+   - [[https://en.wikipedia.org/wiki/Charge_carrier_density][wikipedia]]
+   - [[https://ecee.colorado.edu/~bart/book/book/chapter2/ch2_6.htm][boulder]]
+	 
+*** Homework 1
+
+	$n_i$ increases substantially as temperature increases because
+	electrons from the valence band gain enough energy to become free
+	electons in the conduction band.
+
+** Density of States
+   - [[https://en.wikipedia.org/wiki/Density_of_states#Parabolic_dispersion][wikipedia]]
+   - [[https://ecee.colorado.edu/~bart/book/book/chapter2/ch2_4.htm][boulder]]
+
+
+
+** sasa
 *** [[https://en.wikipedia.org/wiki/Charge_carrier_density#Semiconductors][Semiconductor Calculation Simplification]]
-	Treat electrons as gas particles instead of fermions.
+	Treat electrons as gas particles instead of fermions. Use
+	Maxwell-Boltzmann distribution instead of Fermi-Dirac distribution.
 
 	
 	\(n_0=2\left(\frac{m'kT}{2\pi h^2}\right)^{3/2} {\rm e}^{\frac{-(E_c-E_f)}{k_B T}}\)
 	
 	
 
-*** [[https://en.wikipedia.org/wiki/Valence_and_conduction_bands][Valence and Conduction Bands]]
-	[[./figures/2019-09-02_energyBands.png]]
-	
-	If electrons in the valence band gain enough energy, they become
-    free (conduction) electrons in the conduction band.
-
-	[[./figures/2019-09-02_forbiddenEnergyMaterialVariation.jpg]]
-
-	
-
-**** [[Https://en.wikipedia.org/wiki/Fermi_level][Fermi Level]]
 *** [[https://en.wikipedia.org/wiki/Pauli_exclusion_principle][Pauli Exclusion Principle]]
 *** [[https://en.wikipedia.org/wiki/Fermion][Fermions]]
 *** [[https://en.wikipedia.org/wiki/Boson][Bosons]]
+
+** misc
+   - Gallium Nitrate
+   - Gallium Oxiden
+
+
+

@@ -3,3 +3,7 @@
 ./*.html
 ./*.tex
 ltximg/
+notes.html
+notes.tex
+notes.pdf
+_minted-notes/
