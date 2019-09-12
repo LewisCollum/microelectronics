@@ -1,9 +1,8 @@
 \#*
 *~
-./*.html
-./*.tex
 ltximg/
-notes.html
-notes.tex
-notes.pdf
+*.html
+*.tex
+*.pdf
 _minted-notes/
+scrap*

@@ -1,0 +1,55 @@
+#+title: Homework 1
+#+author: Lewis Collum
+#+options: toc:nil num:nil
+
+* 3.1
+#+BEGIN_SRC python :dir ../source :results output
+from kelvin import Kelvin
+import math
+from decimal import Decimal
+
+t = {
+    "-55C": Kelvin.fromCelsius(-55),
+    "0C": Kelvin.fromCelsius(0),
+    "20C": Kelvin.fromCelsius(20),
+    "75C": Kelvin.fromCelsius(75),
+    "125C": Kelvin.fromCelsius(125)
+}
+
+def densityOfStates(materialConstant: float, kelvinOfSystem: Kelvin) -> float:
+    return materialConstant * kelvinOfSystem.kelvin**(3/2)
+
+class Boltzmann:
+    class Constant:
+        electronVolts = 8.617e-5
+        joules = 1.380e-23
+        
+    @classmethod
+    def probability(cls, stateEnergy: float, kelvinOfSystem: Kelvin):
+        return math.exp(-stateEnergy/(kelvinOfSystem.kelvin * cls.Constant.electronVolts))
+
+for key, kelvin in t.items():
+    intrinsicConcentration = densityOfStates(materialConstant = 7.3e15, kelvinOfSystem = kelvin) * Boltzmann.probability(stateEnergy = 1.12, kelvinOfSystem = kelvin)**(1/2)
+    print(f"Case {key} ({kelvin.kelvin:.5}): {intrinsicConcentration:.2}")
+
+intrinsicConcentration = densityOfStates(7.3e15, Kelvin(300))*Boltzmann.probability(1.12, Kelvin(300))**(1/2)
+print(f"{intrinsicConcentration:.2}")
+#+END_SRC
+
+#+RESULTS:
+: Case -55C (218.15): 2.7e+06
+: Case 0C (273.15): 1.5e+09
+: Case 20C (293.15): 8.6e+09
+: Case 75C (348.15): 3.7e+11
+: Case 125C (398.15): 4.7e+12
+: 1.5e+10
+
+
+As temperature increases, the number of possible conducting states
+increase, as does the probability that those states are occupied by electrons.
+
+Thermal excitation of electrons in the valence band is a consequence
+of raising the temperature. 
+
+Increased temperature increases the average kinetic energy of the
+electrons in the valence band, or thermally 

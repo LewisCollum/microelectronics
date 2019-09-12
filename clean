@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
-rm -f *.tex
-rm -f *.html
+rm -f notes.tex
+rm -f notes.html
+rm -f notes.pdf
