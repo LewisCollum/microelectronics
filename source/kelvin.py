@@ -1,4 +1,3 @@
-import constants
 class Kelvin:
     celsiusOffset = 273.15
     

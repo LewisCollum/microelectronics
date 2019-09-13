@@ -79,7 +79,6 @@ restingElectronMass = 9.11*10**-31
 
 ** kelvin
 #+BEGIN_SRC python :tangle source/kelvin.py :dir source :eval no
-import constants
 class Kelvin:
     celsiusOffset = 273.15
     

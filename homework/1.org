@@ -1,59 +1,25 @@
-#+options: toc:nil num:nil
+#+options: num:nil
 #+latex_header: \usepackage{homework_template}
-
-#+BEGIN_SRC elisp :noweb no-export :exports results
-  (setq org-latex-minted-options
-    '(("framesep" "6pt") ("fontfamily" "courier")
-      ("mathescape" "true") ("fontsize" "\\footnotesize")))
-  nil
-#+END_SRC
-
 * 3.1
 ** Solution:
-#+BEGIN_SRC python :dir ../source :results output :exports code
-from kelvin import Kelvin
-import math
+#+BEGIN_SRC python :results output :exports code
+import api_1
 
-def densityOfStates(materialConstant: float, kelvinOfSystem: Kelvin) -> float:
-    return materialConstant * kelvinOfSystem.kelvin**(3/2)
-
-class Boltzmann:
-    class Constant:
-        electronVolts = 8.617e-5
-        joules = 1.380e-23
-        
-    @classmethod
-    def probability(cls, stateEnergy: float, kelvinOfSystem: Kelvin) -> float:
-        return math.exp(-stateEnergy/(kelvinOfSystem.kelvin * cls.Constant.electronVolts))
-
-class Silicon:
-    densityOfStatesMaterialConstant = 7.3e15
-    densityOfAtoms = 5e22
-
-    @classmethod
-    def intrinsicConcentrationFromKelvin(cls, kelvin: Kelvin) -> float:
-        siliconDensityOfStates = densityOfStates(
-            materialConstant=Silicon.densityOfStatesMaterialConstant,
-            kelvinOfSystem=kelvin)
-        distribution = Boltzmann.probability(
-            stateEnergy=1.12,
-            kelvinOfSystem=kelvin)**(1/2)
-        return siliconDensityOfStates * distribution
-
+unit = api_1.unit
     
 t = {
-    "-55C": Kelvin.fromCelsius(-55),
-    "0C": Kelvin.fromCelsius(0),
-    "20C": Kelvin.fromCelsius(20),
-    "75C": Kelvin.fromCelsius(75),
-    "125C": Kelvin.fromCelsius(125)
+    "-55C": unit.Quantity(-55, unit.celsius).to('kelvin'),
+    "0C": unit.Quantity(0, unit.celsius).to('kelvin'),
+    "20C": unit.Quantity(20, unit.celsius).to('kelvin'),
+    "75C": unit.Quantity(75, unit.celsius).to('kelvin'),
+    "125C": unit.Quantity(125, unit.celsius).to('kelvin')
 }
 
 for key, kelvin in t.items():
-    intrinsicConcentration = Silicon.intrinsicConcentrationFromKelvin(kelvin)
-    ionizationRatio = intrinsicConcentration / Silicon.densityOfAtoms
+    intrinsicConcentration = api_1.Silicon.intrinsicConcentrationFromKelvin(kelvin)
+    ionizationRatio = intrinsicConcentration / api_1.Silicon.densityOfAtoms
 
-    print(f"Case {key} ({kelvin.kelvin:.5}): {intrinsicConcentration:.2E}")
+    print(f"Case {key} ({kelvin:.5}): {intrinsicConcentration:.2E}")
     print(f"Fraction of atoms ionized: ni/N = {ionizationRatio:.2E}\n")
 #+END_SRC
 
@@ -82,14 +48,103 @@ states increase, as does the probability that those states are
 occupied by electrons; this implies a greater intrinsic density.
 
 * 3.3
-#+BEGIN_SRC python :results output :exports both
-import pint
-ureg = pint.UnitRegistry()
+** Solution:
+#+BEGIN_SRC python :results output :exports code
+import api_1
 
-dopantConcentration = 5e18 / ureg.centimeters**3
-systemKelvin = 300 * ureg.kelvin
-print(systemKelvin)
+unit = api_1.unit
+
+acceptorDopantConcentration = 5e18 / unit.centimeters**3
+systemKelvin = 300 * unit.kelvin
+intrinsicConcentration = api_1.Silicon.intrinsicConcentrationFromKelvin(300*unit.kelvin)
+
+electronConcentration = intrinsicConcentration**2/acceptorDopantConcentration
+print(f"P-type Electron Concentration: {electronConcentration:.4}")
+print(f"P-type Hole Concentration: {acceptorDopantConcentration:.4}")
 #+END_SRC
 
+** Answer:
 #+RESULTS:
-: 300 kelvin
+: P-type Electron Concentration: 44.04 / centimeter ** 3
+: P-type Hole Concentration: 5e+18 / centimeter ** 3
+
+* 3.5
+** Solution:
+#+BEGIN_SRC python :results output :exports code
+import api_1
+from api_1 import unit
+
+donorDopantConcentration = 10e17 / unit.centimeters**3
+print(f"N-type Electron Concentration: {donorDopantConcentration:.4} @ 27C and 125C")
+
+t = {
+    '27C': unit.Quantity(27, unit.celsius).to('kelvin'),
+    '125C': unit.Quantity(125, unit.celsius).to('kelvin')
+}
+
+for label, kelvin in t.items():
+    intrinsicConcentration = api_1.Silicon.intrinsicConcentrationFromKelvin(kelvin)
+    holeConcentration = intrinsicConcentration**2/donorDopantConcentration
+    print(f"N-type Hole Concentration: {holeConcentration:.4} @ {label}")
+#+END_SRC
+
+** Answer:
+#+RESULTS:
+: N-type Electron Concentration: 1e+18 / centimeter ** 3 @ 27C and 125C
+: N-type Hole Concentration: 225.4 / centimeter ** 3 @ 27C
+: N-type Hole Concentration: 2.238e+07 / centimeter ** 3 @ 125C
+
+* 3.21
+** Solution:
+** Answer:
+* 4.18
+** Solution:
+** Answer:
+* 4.19
+** Solution:
+** Answer:
+* 4.23
+** Solution:
+** Answer:
+* 4.25
+** Solution:
+** Answer:
+* 4.28
+** Solution:
+** Answer:
+* 4.29
+** Solution:
+** Answer:
+
+
+* Appendix: Code
+#+BEGIN_SRC python :tangle api_1.py
+from __future__ import annotations
+import math
+import pint
+
+unit = pint.UnitRegistry()
+
+def densityOfStates(materialConstant: float, kelvinOfSystem: float) -> float:
+    return materialConstant/unit.kelvin**(3/2)/unit.centimeters**3 * kelvinOfSystem**(3/2)
+
+class Boltzmann:        
+    @classmethod
+    def probability(cls, stateEnergy: float, kelvinOfSystem: float) -> float:
+        return math.exp(-stateEnergy*unit.eV/(kelvinOfSystem * unit.boltzmann_constant))
+
+class Silicon:
+    densityOfStatesMaterialConstant = 7.3e15
+    densityOfAtoms = 5e22
+
+    @classmethod
+    def intrinsicConcentrationFromKelvin(cls, kelvin: float) -> float:
+        siliconDensityOfStates = densityOfStates(
+            materialConstant=Silicon.densityOfStatesMaterialConstant,
+            kelvinOfSystem=kelvin)
+        distribution = Boltzmann.probability(
+            stateEnergy=1.12,
+            kelvinOfSystem=kelvin)**(1/2)
+        return siliconDensityOfStates * distribution
+#+END_SRC  
+** Answer
