@@ -4,5 +4,6 @@ ltximg/
 *.html
 *.tex
 *.pdf
-_minted-notes/
+_minted*
 scrap*
+__pycache__/
