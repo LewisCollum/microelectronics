@@ -1,0 +1,37 @@
+\ProvidesPackage{homework_template}[2019/02/03 Package for homeworks]
+\usepackage[letterpaper]{geometry}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+\newcommand\textline[4][t]{%
+  \par\smallskip\noindent\parbox[#1]{.333\textwidth}{\raggedright#2}%
+  \parbox[#1]{.333\textwidth}{\centering#3}%
+  \parbox[#1]{.333\textwidth}{\raggedleft\texttt{#4}}\par\smallskip%
+}
+
+\setlength\parindent{0pt}
+
+\newcommand*{\setMargins}{
+  % \geometry{left=0.33in, right=0.33in, top=1in, bottom=0.8in}
+  \geometry{letterpaper, hmargin=.33in,top=0.4in,
+    bottom=\dimexpr0.4in+1.2\baselineskip\relax,
+    includehead, includefoot,headheight=25pt}
+}
+
+\newcommand*{\removeHeaderBar}{
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+\setMargins
+\removeHeaderBar
+\lhead{
+  Lewis Collum \\
+  Homework: \jobname \\
+  Updated: \today
+}
+\cfoot{\makebox[\textwidth][c]{\thepage}}
+
+\titleformat{\section}{\bfseries}{\thesection.}{1em}{}
+\titleformat{\subsection}[runin]{\rmfamily\bfseries}{\thesubsection}{1em}{}
+\titlespacing{\subsection}{0pt}{0pt}{0pt}

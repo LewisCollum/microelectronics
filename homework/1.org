@@ -1,20 +1,18 @@
-#+title: Homework 1
-#+author: Lewis Collum
 #+options: toc:nil num:nil
+#+latex_header: \usepackage{homework_template}
+
+#+BEGIN_SRC elisp :noweb no-export :exports results
+  (setq org-latex-minted-options
+    '(("framesep" "6pt") ("fontfamily" "courier")
+      ("mathescape" "true") ("fontsize" "\\footnotesize")))
+  nil
+#+END_SRC
 
 * 3.1
-#+BEGIN_SRC python :dir ../source :results output
+** Solution:
+#+BEGIN_SRC python :dir ../source :results output :exports code
 from kelvin import Kelvin
 import math
-from decimal import Decimal
-
-t = {
-    "-55C": Kelvin.fromCelsius(-55),
-    "0C": Kelvin.fromCelsius(0),
-    "20C": Kelvin.fromCelsius(20),
-    "75C": Kelvin.fromCelsius(75),
-    "125C": Kelvin.fromCelsius(125)
-}
 
 def densityOfStates(materialConstant: float, kelvinOfSystem: Kelvin) -> float:
     return materialConstant * kelvinOfSystem.kelvin**(3/2)
@@ -25,31 +23,73 @@ class Boltzmann:
         joules = 1.380e-23
         
     @classmethod
-    def probability(cls, stateEnergy: float, kelvinOfSystem: Kelvin):
+    def probability(cls, stateEnergy: float, kelvinOfSystem: Kelvin) -> float:
         return math.exp(-stateEnergy/(kelvinOfSystem.kelvin * cls.Constant.electronVolts))
 
-for key, kelvin in t.items():
-    intrinsicConcentration = densityOfStates(materialConstant = 7.3e15, kelvinOfSystem = kelvin) * Boltzmann.probability(stateEnergy = 1.12, kelvinOfSystem = kelvin)**(1/2)
-    print(f"Case {key} ({kelvin.kelvin:.5}): {intrinsicConcentration:.2}")
+class Silicon:
+    densityOfStatesMaterialConstant = 7.3e15
+    densityOfAtoms = 5e22
 
-intrinsicConcentration = densityOfStates(7.3e15, Kelvin(300))*Boltzmann.probability(1.12, Kelvin(300))**(1/2)
-print(f"{intrinsicConcentration:.2}")
+    @classmethod
+    def intrinsicConcentrationFromKelvin(cls, kelvin: Kelvin) -> float:
+        siliconDensityOfStates = densityOfStates(
+            materialConstant=Silicon.densityOfStatesMaterialConstant,
+            kelvinOfSystem=kelvin)
+        distribution = Boltzmann.probability(
+            stateEnergy=1.12,
+            kelvinOfSystem=kelvin)**(1/2)
+        return siliconDensityOfStates * distribution
+
+    
+t = {
+    "-55C": Kelvin.fromCelsius(-55),
+    "0C": Kelvin.fromCelsius(0),
+    "20C": Kelvin.fromCelsius(20),
+    "75C": Kelvin.fromCelsius(75),
+    "125C": Kelvin.fromCelsius(125)
+}
+
+for key, kelvin in t.items():
+    intrinsicConcentration = Silicon.intrinsicConcentrationFromKelvin(kelvin)
+    ionizationRatio = intrinsicConcentration / Silicon.densityOfAtoms
+
+    print(f"Case {key} ({kelvin.kelvin:.5}): {intrinsicConcentration:.2E}")
+    print(f"Fraction of atoms ionized: ni/N = {ionizationRatio:.2E}\n")
+#+END_SRC
+
+** Answer:
+#+begin_example
+Case -55C (218.15): 2.71E+06
+Fraction of atoms ionized: ni/N = 5.43E-17
+
+Case 0C (273.15): 1.53E+09
+Fraction of atoms ionized: ni/N = 3.06E-14
+
+Case 20C (293.15): 8.63E+09
+Fraction of atoms ionized: ni/N = 1.73E-13
+
+Case 75C (348.15): 3.71E+11
+Fraction of atoms ionized: ni/N = 7.42E-12
+
+Case 125C (398.15): 4.73E+12
+Fraction of atoms ionized: ni/N = 9.46E-11
+
+#+end_example
+
+Thermal excitation of electrons in the valence band is a consequence
+of raising the temperature. As such, the number of possible conducting
+states increase, as does the probability that those states are
+occupied by electrons; this implies a greater intrinsic density.
+
+* 3.3
+#+BEGIN_SRC python :results output :exports both
+import pint
+ureg = pint.UnitRegistry()
+
+dopantConcentration = 5e18 / ureg.centimeters**3
+systemKelvin = 300 * ureg.kelvin
+print(systemKelvin)
 #+END_SRC
 
 #+RESULTS:
-: Case -55C (218.15): 2.7e+06
-: Case 0C (273.15): 1.5e+09
-: Case 20C (293.15): 8.6e+09
-: Case 75C (348.15): 3.7e+11
-: Case 125C (398.15): 4.7e+12
-: 1.5e+10
-
-
-As temperature increases, the number of possible conducting states
-increase, as does the probability that those states are occupied by electrons.
-
-Thermal excitation of electrons in the valence band is a consequence
-of raising the temperature. 
-
-Increased temperature increases the average kinetic energy of the
-electrons in the valence band, or thermally 
+: 300 kelvin
