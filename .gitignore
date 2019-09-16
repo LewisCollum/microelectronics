@@ -3,7 +3,6 @@
 ltximg/
 *.html
 *.tex
-*.pdf
 _minted*
 scrap*
 __pycache__/
