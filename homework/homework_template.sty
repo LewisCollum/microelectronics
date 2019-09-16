@@ -1,5 +1,6 @@
 \ProvidesPackage{homework_template}[2019/02/03 Package for homeworks]
 \usepackage[letterpaper]{geometry}
+\usepackage{siunitx}
 \usepackage{titlesec}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
@@ -8,6 +9,16 @@
   \par\smallskip\noindent\parbox[#1]{.333\textwidth}{\raggedright#2}%
   \parbox[#1]{.333\textwidth}{\centering#3}%
   \parbox[#1]{.333\textwidth}{\raggedleft\texttt{#4}}\par\smallskip%
+}
+
+% https://latex.org/forum/viewtopic.php?f=46&t=8144
+\newlength\dlf 
+\newcommand\alignedbox[2]{&{
+    \settowidth\dlf{$\displaystyle #1$}  
+    \addtolength\dlf{\fboxsep+\fboxrule}  
+    \hspace{-\dlf}  
+    \boxed{#1 #2}
+  }
 }
 
 \setlength\parindent{0pt}
@@ -32,6 +43,17 @@
 }
 \cfoot{\makebox[\textwidth][c]{\thepage}}
 
-\titleformat{\section}{\bfseries}{\thesection.}{1em}{}
+%% \titleformat{\section}
+%%             {\bfseries} %format
+%%             {}{0pt}
+%%             {\thesection.}
+%%             [\titlerule[0.4pt]]
+
+\titleformat{\section}
+   {\bfseries}% format
+   {}% label
+   {0pt}% sep
+   {{\titlerule[0.4pt]}}
+
 \titleformat{\subsection}[runin]{\rmfamily\bfseries}{\thesubsection}{1em}{}
 \titlespacing{\subsection}{0pt}{0pt}{0pt}
