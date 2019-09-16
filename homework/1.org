@@ -1,10 +1,11 @@
-#+options: num:nil
+#+options: num:nil toc:nil
 #+latex_header: \usepackage{homework_template}
-* 3.1
+*Document Org/LaTex source code:* [[https://github.com/LewisCollum/microelectronics][github.com/LewisCollum/microelectronics]]
+
+* 3.1 
 ** Solution:
 #+BEGIN_SRC python :results output :exports code
 import api_1
-
 unit = api_1.unit
     
 t = {
@@ -25,21 +26,20 @@ for key, kelvin in t.items():
 
 ** Answer:
 #+begin_example
-Case -55C (218.15): 2.71E+06
-Fraction of atoms ionized: ni/N = 5.43E-17
+Case -55C (218.15 kelvin): 2.72E+06 / centimeter ** 3
+Fraction of atoms ionized: ni/N = 5.43E-17 / centimeter ** 3
 
-Case 0C (273.15): 1.53E+09
-Fraction of atoms ionized: ni/N = 3.06E-14
+Case 0C (273.15 kelvin): 1.53E+09 / centimeter ** 3
+Fraction of atoms ionized: ni/N = 3.07E-14 / centimeter ** 3
 
-Case 20C (293.15): 8.63E+09
-Fraction of atoms ionized: ni/N = 1.73E-13
+Case 20C (293.15 kelvin): 8.64E+09 / centimeter ** 3
+Fraction of atoms ionized: ni/N = 1.73E-13 / centimeter ** 3
 
-Case 75C (348.15): 3.71E+11
-Fraction of atoms ionized: ni/N = 7.42E-12
+Case 75C (348.15 kelvin): 3.71E+11 / centimeter ** 3
+Fraction of atoms ionized: ni/N = 7.42E-12 / centimeter ** 3
 
-Case 125C (398.15): 4.73E+12
-Fraction of atoms ionized: ni/N = 9.46E-11
-
+Case 125C (398.15 kelvin): 4.73E+12 / centimeter ** 3
+Fraction of atoms ionized: ni/N = 9.46E-11 / centimeter ** 3
 #+end_example
 
 Thermal excitation of electrons in the valence band is a consequence
@@ -51,14 +51,13 @@ occupied by electrons; this implies a greater intrinsic density.
 ** Solution:
 #+BEGIN_SRC python :results output :exports code
 import api_1
-
 unit = api_1.unit
 
 acceptorDopantConcentration = 5e18 / unit.centimeters**3
 systemKelvin = 300 * unit.kelvin
 intrinsicConcentration = api_1.Silicon.intrinsicConcentrationFromKelvin(300*unit.kelvin)
-
 electronConcentration = intrinsicConcentration**2/acceptorDopantConcentration
+
 print(f"P-type Electron Concentration: {electronConcentration:.4}")
 print(f"P-type Hole Concentration: {acceptorDopantConcentration:.4}")
 #+END_SRC
@@ -96,27 +95,110 @@ for label, kelvin in t.items():
 
 * 3.21
 ** Solution:
+#+BEGIN_SRC python :results output
+import api_1
+unit = api_1.unit
+
+carrierConcentration = {
+    '300K': api_1.Silicon.intrinsicConcentrationFromKelvin(300 * unit.kelvin),
+    '305K': api_1.Silicon.intrinsicConcentrationFromKelvin(305 * unit.kelvin)
+}
+
+factor = carrierConcentration['305K']**2 / carrierConcentration['300K']**2
+print(f"Factor: {factor.magnitude:.3}")
+#+END_SRC
+
 ** Answer:
+#+RESULTS:
+: Factor: 2.14
+
 * 4.18
-** Solution:
-** Answer:
+#+BEGIN_EXPORT latex
+\begin{align*}
+  v &= V_T \ln{\frac{i}{I_S}} \\
+  v &= V_T \ln{\frac{10000 I_S}{I_S}} \\
+  v &= V_T \ln{10000} \ \text{assume $V_T = 25\si{mV}$} \\
+  \alignedbox{v}{= 0.025 \cdot \ln{10000} = 0.23 \si{V}}
+\end{align*}
+
+\begin{align*}
+  i &= I_S \cdot e^{v/V_T} \\
+  i &= I_S \cdot e^{0.7/0.025} \\
+  \alignedbox{i}{= 1.45\times10^{12} I_S}
+\end{align*}
+#+END_EXPORT
+
 * 4.19
-** Solution:
-** Answer:
+#+BEGIN_EXPORT latex
+\begin{align*}
+  \frac{I_2}{I_1} &= e^{(V_2-V_1)/V_T} \\
+  I_2 &= e^{(0.5-0.7)/0.025)}\cdot 1\si{mA} \\
+  \alignedbox{I_2}{= 335\si{\mu A}}
+\end{align*}
+#+END_EXPORT
 * 4.23
-** Solution:
-** Answer:
+#+BEGIN_EXPORT latex
+The voltage across each diode, $V_d$, is $V_o / 3 = 0.67$.
+\begin{align*}
+  I &= I_S \cdot e^{V_d/V_T}\\
+  I &= 10^{-14}\si{A} \cdot e^{0.67/0.025} \\
+  \alignedbox{I}{= 4.4\si{mA}}
+\end{align*}
+
+If 1mA is drawn, $I = 4.4\si{mA} - 1\si{mA} = 3.4\si{mA}$
+\begin{align*}
+  V_o &= V_T \cdot \ln{\frac{I}{I_S}} \cdot 3 \\
+  V_o &= 0.025 \cdot \ln{\frac{0.0034}{10^{-14}}} \cdot 3 \\
+  V_o &= 1.991 \si{V}
+\end{align*}
+Output voltage changed by $2 - 1.991 = \boxed{9.0\si{mV}}$
+#+END_EXPORT
 * 4.25
-** Solution:
-** Answer:
+#+BEGIN_EXPORT latex
+\begin{align*}
+  I_{D1} = I_{S1} \cdot e^{V_D/V_T} \\
+  I_{D2} = I_{S2} \cdot e^{V_D/V_T} \\
+  V_D = V_T \ln{\frac{I_{D1}}{I_{S1}}}
+\end{align*}
+#+END_EXPORT
 * 4.28
-** Solution:
-** Answer:
+#+BEGIN_EXPORT latex
+\begin{align*}
+  I &= I_1 + I_2 \text{ by KCL} \\
+  I_1 &= V/R \text{ by Ohm's law} \\
+  V &= V_2-V_1 \text{ by KVL} \\
+  e^{(V_2-V_1)/V_T} &= e^{V/V_T} = \frac{I_2}{I_1} = \frac{I - I_1}{I_1} = \frac{I}{I_1} - 1 \\
+  \frac{I \cdot R}{V} - 1 &= e^{V/V_T} \to R = \frac{V}{I} \cdot (e^{V/V_T}+1) \\
+  \alignedbox{R}{= \frac{0.05\si{V}}{0.01\si{A}} (e^{0.05\si{V}/0.025\si{V}}+1) = 42 \si{\Omega}}
+\end{align*}
+#+END_EXPORT
 * 4.29
-** Solution:
-** Answer:
 
+According to the text book:
+#+BEGIN_SRC text
+At a given constant diode current, the voltage drop across the diode
+decreases by approximately 2 mV for every 1°C increase in temperature.
+#+END_SRC
 
+Case $T=-20 ^{\circ}C$:
+#+BEGIN_EXPORT latex
+\begin{align*}
+  \Delta T &= -40\si{^{\circ} C} \\
+  V &= 690\si{mV} + 2\si{mV} \cdot 40\si{^{\circ} C} \\
+  \alignedbox{}{= 770 \si{mV}}
+\end{align*}
+#+END_EXPORT  
+
+Case $T=+85 ^{\circ}C$:
+#+BEGIN_EXPORT latex
+\begin{align*}
+  \Delta T &= +65\si{^{\circ} C} \\
+  V &= 690\si{mV} - 2\si{mV} \cdot 65\si{^{\circ} C} \\
+  \alignedbox{}{= 560 \si{mV}}
+\end{align*}
+#+END_EXPORT  
+
+\newpage
 * Appendix: Code
 #+BEGIN_SRC python :tangle api_1.py
 from __future__ import annotations
@@ -136,6 +218,8 @@ class Boltzmann:
 class Silicon:
     densityOfStatesMaterialConstant = 7.3e15
     densityOfAtoms = 5e22
+    holeMobility = 480 * unit.centimeters**2 / (unit.volts*unit.seconds)
+    electronMobility = 1350 * unit.centimeters**2 / (unit.volts*unit.seconds)
 
     @classmethod
     def intrinsicConcentrationFromKelvin(cls, kelvin: float) -> float:
@@ -146,5 +230,4 @@ class Silicon:
             stateEnergy=1.12,
             kelvinOfSystem=kelvin)**(1/2)
         return siliconDensityOfStates * distribution
-#+END_SRC  
-** Answer
+#+END_SRC
