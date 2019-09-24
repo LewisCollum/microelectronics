@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
-rm -f notes.tex
-rm -f notes.html
-rm -f notes.pdf
+rm -f **.tex
+rm -f **.html
+rm -rf **_minted*/
+rm -rf **ltximg/
+rm -f **\#*
+rm -rf **__pycache__/

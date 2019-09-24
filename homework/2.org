@@ -1,0 +1,22 @@
+#+title: EEWHatever 
+#+author: Lewis Collum
+#+date: Updated \today
+
+#+attr_latex: :language spice.py:SpiceLexer -x
+#+BEGIN_SRC spice :exports both :results output raw :var file="tutorial"
+.title dual rc ladder
+R1 int in 5k
+V1 in 0 dc 0 ac 1 PULSE (0 10 1u 1u 1u 1 1)
+R2 out int 1k
+C1 int 0 10u
+C2 out 0 100n
+.control
+ac dec 10 1 100k
+set gnuplot_terminal=png/quit
+gnuplot $file v(out)
+.endc
+.end
+#+END_SRC
+
+#+RESULTS:
+[[file:./tutorial.png]]
