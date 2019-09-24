@@ -8,3 +8,4 @@ scrap*
 __pycache__/
 **.data
 **.plt
+clean
