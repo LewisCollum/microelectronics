@@ -6,3 +6,5 @@ ltximg/
 _minted*
 scrap*
 __pycache__/
+**.data
+**.plt
