@@ -16,6 +16,7 @@ class Silicon:
     densityOfStatesMaterialConstant = 7.3e15
     densityOfAtoms = 5e22
     holeMobility = 480 * unit.centimeters**2 / (unit.volts*unit.seconds)
+    electronMobility = 1350 * unit.centimeters**2 / (unit.volts*unit.seconds)
 
     @classmethod
     def intrinsicConcentrationFromKelvin(cls, kelvin: float) -> float:
