@@ -1,0 +1,5 @@
+#+latex_header: \usepackage{homework}
+#+title: EE341 Fall 2019 HW \jobname
+#+author: Lewis Collum
+#+date: Updated: \today
+*Document Org source code:* [[https://github.com/LewisCollum/microelectronics][github.com/LewisCollum/microelectronics]]

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+cp .homework_template.org $1.org
