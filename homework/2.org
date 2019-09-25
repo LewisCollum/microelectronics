@@ -1,9 +1,70 @@
-#+title: EEWHatever 
+#+latex_header: \usepackage{homework}
+#+title: EE341 Fall 2019 HW \jobname
 #+author: Lewis Collum
-#+date: Updated \today
+#+date: Updated: \today
+[[https://github.com/LewisCollum/microelectronics][github.com/LewisCollum/microelectronics]]
 
-#+attr_latex: :language spice.py:SpiceLexer -x
-#+BEGIN_SRC spice :exports both :results output raw :var file="tutorial"
+* 4.35
+  #+attr_latex: :width \linewidth/2
+  [[./figure/questions/4.35.png]]
+
+*** Given:
+#+BEGIN_SRC python :exports code :results silent :session s435
+import numpy
+import pint
+unit = pint.UnitRegistry()
+
+R = 1 * unit.kohm
+v = {'DD': 1 * unit.V}
+i = {'S': 10e-15 * unit.A, 'D': []}
+#+END_SRC
+
+*** Algebraically solve for $I_D$:
+#+BEGIN_EXPORT latex
+\begin{align*}
+  V_{DD} &= I_D R + V_D \\
+  \text{So, } I_D &= \frac{V_{DD} - V_D}{R} \text{ (by KVL).}\\
+  \text{And, } I_D &= I_S\cdot e^{V_D/V_T} \text{ (by diode characteristics)}\\
+\end{align*}
+#+END_EXPORT
+
+*** Solve for $V_D$
+From above,
+#+BEGIN_EXPORT latex
+\begin{align*}
+  \frac{V_{DD} - V_D}{R} &= I_S\cdot e^{V_D/V_T} \\
+  \text{So, } V_D &= 
+\end{align*}
+#+END_EXPORT
+    
+#+BEGIN_SRC python :exports both :results output latex :session s435
+v['D'] = 0.7 * unit.V
+v['T'] = 25 * unit.mV
+i['D'].append(i['S']*numpy.exp(v['D']/v['T'])) #((v['DD'] - v['D'])/R).to('mA')
+print("\\begin{center}", f"\(I_D = {i['D'][0]:.2~Lx}\)", "\\end{center}")
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\begin{center} \(I_D = \SI[]{0.014}{\ampere}\) \end{center}
+#+END_EXPORT
+
+
+*** Iterative solution for $V_D$ and $I_D$: 
+    Assume \(V_T = 25\si{mV}\) (Thermal voltage at room temperature).
+
+#+BEGIN_EXPORT latex
+\begin{equation*}
+  V_1 - V_0 = V_T \ln{\frac{I_1}{I_0}}
+\end{equation*}
+#+END_EXPORT
+
+#+BEGIN_SRC python :exports both :results output latex :session s435
+
+
+#+END_SRC
+
+#+BEGIN_SRC spice :exports both :results output raw :var file="figure/temp"
 .title dual rc ladder
 R1 int in 5k
 V1 in 0 dc 0 ac 1 PULSE (0 10 1u 1u 1u 1 1)

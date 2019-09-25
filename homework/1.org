@@ -1,12 +1,14 @@
-#+options: num:nil toc:nil
-#+latex_header: \usepackage{homework_template}
-*Document Org/LaTex source code:* [[https://github.com/LewisCollum/microelectronics][github.com/LewisCollum/microelectronics]]
+#+latex_header: \usepackage{homework}
+#+title: EE341 Fall 2019 HW \jobname
+#+author: Lewis Collum
+#+date: Updated: \today
+*Document Org source code:* [[https://github.com/LewisCollum/microelectronics][github.com/LewisCollum/microelectronics]]
 
 * 3.1 
 ** Solution:
 #+BEGIN_SRC python :results output :exports code
-import api_1
-unit = api_1.unit
+import api.homework_1 as api
+unit = api.unit
     
 t = {
     "-55C": unit.Quantity(-55, unit.celsius).to('kelvin'),
@@ -17,13 +19,12 @@ t = {
 }
 
 for key, kelvin in t.items():
-    intrinsicConcentration = api_1.Silicon.intrinsicConcentrationFromKelvin(kelvin)
-    ionizationRatio = intrinsicConcentration / api_1.Silicon.densityOfAtoms
+    intrinsicConcentration = api.Silicon.intrinsicConcentrationFromKelvin(kelvin)
+    ionizationRatio = intrinsicConcentration / api.Silicon.densityOfAtoms
 
     print(f"Case {key} ({kelvin:.5}): {intrinsicConcentration:.2E}")
     print(f"Fraction of atoms ionized: ni/N = {ionizationRatio:.2E}\n")
 #+END_SRC
-
 ** Answer:
 #+begin_example
 Case -55C (218.15 kelvin): 2.72E+06 / centimeter ** 3
@@ -50,12 +51,12 @@ occupied by electrons; this implies a greater intrinsic density.
 * 3.3
 ** Solution:
 #+BEGIN_SRC python :results output :exports code
-import api_1
-unit = api_1.unit
+import api.homework_1 as api
+unit = api.unit
 
 acceptorDopantConcentration = 5e18 / unit.centimeters**3
 systemKelvin = 300 * unit.kelvin
-intrinsicConcentration = api_1.Silicon.intrinsicConcentrationFromKelvin(300*unit.kelvin)
+intrinsicConcentration = api.Silicon.intrinsicConcentrationFromKelvin(300*unit.kelvin)
 electronConcentration = intrinsicConcentration**2/acceptorDopantConcentration
 
 print(f"P-type Electron Concentration: {electronConcentration:.4}")
@@ -70,8 +71,8 @@ print(f"P-type Hole Concentration: {acceptorDopantConcentration:.4}")
 * 3.5
 ** Solution:
 #+BEGIN_SRC python :results output :exports code
-import api_1
-from api_1 import unit
+import api.homework_1 as api
+from api import unit
 
 donorDopantConcentration = 10e17 / unit.centimeters**3
 print(f"N-type Electron Concentration: {donorDopantConcentration:.4} @ 27C and 125C")
@@ -82,7 +83,7 @@ t = {
 }
 
 for label, kelvin in t.items():
-    intrinsicConcentration = api_1.Silicon.intrinsicConcentrationFromKelvin(kelvin)
+    intrinsicConcentration = api.Silicon.intrinsicConcentrationFromKelvin(kelvin)
     holeConcentration = intrinsicConcentration**2/donorDopantConcentration
     print(f"N-type Hole Concentration: {holeConcentration:.4} @ {label}")
 #+END_SRC
@@ -96,12 +97,12 @@ for label, kelvin in t.items():
 * 3.21
 ** Solution:
 #+BEGIN_SRC python :results output
-import api_1
-unit = api_1.unit
+import api.homework_1 as api
+unit = api.unit
 
 carrierConcentration = {
-    '300K': api_1.Silicon.intrinsicConcentrationFromKelvin(300 * unit.kelvin),
-    '305K': api_1.Silicon.intrinsicConcentrationFromKelvin(305 * unit.kelvin)
+    '300K': api.Silicon.intrinsicConcentrationFromKelvin(300 * unit.kelvin),
+    '305K': api.Silicon.intrinsicConcentrationFromKelvin(305 * unit.kelvin)
 }
 
 factor = carrierConcentration['305K']**2 / carrierConcentration['300K']**2
@@ -200,7 +201,7 @@ Case $T=+85 ^{\circ}C$:
 
 \newpage
 * Appendix: Code
-#+BEGIN_SRC python :tangle api_1.py
+#+BEGIN_SRC python :tangle api/homework_1.py
 from __future__ import annotations
 import math
 import pint
