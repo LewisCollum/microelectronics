@@ -8,6 +8,7 @@
 
 \usepackage{siunitx}
 \usepackage{titlesec}
+\usepackage[sfdefault]{opensans}
 
 % https://latex.org/forum/viewtopic.php?f=46&t=8144
 \newlength\dlf 
@@ -31,13 +32,31 @@
   \@date
 \end{flushleft}\egroup
 }
-\makeatother
 
-\titleformat{\section}{\large\bfseries}{}{0pt}{\titlerule[0.4pt]\\Problem }{}
+\titleformat{\section}{\textsc}{}{0pt}{\titlerule[0.4pt]\\Problem }{}
 \titlespacing{\section}{0pt}{5pt}{0pt}
 
-\titleformat{\subsection}{\bfseries}{}{}{}
-\titlespacing{\subsection}{0pt}{0pt}{0pt}
+\titleformat{\subsection}{\small\bfseries}{}{}{}
+\titlespacing{\subsection}{0pt}{10pt}{0pt}
 
-\titleformat{\subsubsection}{\small\itshape\bfseries}{}{}{}
-\titlespacing{\subsubsection}{0pt}{0pt}{0pt}
+%% \titleformat{\subsubsection}[runin]{\normalfont\bfseries}{\thesubsubsection.}{3pt}{}[:]
+\titleformat{\subsubsection}{\small\bfseries}{}{}{}
+\titlespacing{\subsubsection}{0pt}{10pt}{5pt}
+
+\makeatother
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+\setlength{\lineskip}{0pt}
+
+\AtBeginDocument{%
+  \setlength\abovedisplayskip{2pt}%
+  \setlength\belowdisplayskip{2pt}%
+  \setlength\abovedisplayshortskip{2pt}%
+  \setlength\belowdisplayshortskip{5pt}%
+  \definecolor{codeBackground}{rgb}{0.95,0.95,0.95}
+}
+
+\setlength{\mathindent}{0.25in}

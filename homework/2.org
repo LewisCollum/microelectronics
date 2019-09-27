@@ -1,4 +1,6 @@
+#+latex_class_options: [fleqn]
 #+latex_header: \usepackage{homework}
+
 #+title: EE341 Fall 2019 HW \jobname
 #+author: Lewis Collum
 #+date: Updated: \today
@@ -8,62 +10,182 @@
   #+attr_latex: :width \linewidth/2
   [[./figure/questions/4.35.png]]
 
-*** Given:
+*** Given
+#+attr_latex: :options bgcolor=codeBackground
 #+BEGIN_SRC python :exports code :results silent :session s435
 import numpy
 import pint
 unit = pint.UnitRegistry()
 
 R = 1 * unit.kohm
-v = {'DD': 1 * unit.V}
+v = {'DD': 1 * unit.V, 'D': []}
 i = {'S': 10e-15 * unit.A, 'D': []}
 #+END_SRC
 
-*** Algebraically solve for $I_D$:
+*** Assume
 #+BEGIN_EXPORT latex
-\begin{align*}
-  V_{DD} &= I_D R + V_D \\
-  \text{So, } I_D &= \frac{V_{DD} - V_D}{R} \text{ (by KVL).}\\
-  \text{And, } I_D &= I_S\cdot e^{V_D/V_T} \text{ (by diode characteristics)}\\
-\end{align*}
+\noindent
+\begin{gather*}
+    V_T = 25\si{mV} \text{ (thermal voltage at room temperature).}\\
+    V_{D[0]} = 0.7\si{V}
+\end{gather*}
 #+END_EXPORT
 
-*** Solve for $V_D$
-From above,
-#+BEGIN_EXPORT latex
-\begin{align*}
-  \frac{V_{DD} - V_D}{R} &= I_S\cdot e^{V_D/V_T} \\
-  \text{So, } V_D &= 
-\end{align*}
-#+END_EXPORT
-    
-#+BEGIN_SRC python :exports both :results output latex :session s435
-v['D'] = 0.7 * unit.V
+#+ATTR_LATEX: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports code :results silent :session s435
 v['T'] = 25 * unit.mV
-i['D'].append(i['S']*numpy.exp(v['D']/v['T'])) #((v['DD'] - v['D'])/R).to('mA')
-print("\\begin{center}", f"\(I_D = {i['D'][0]:.2~Lx}\)", "\\end{center}")
+v['D'].append(0.7 * unit.V)
+#+END_SRC
+
+*** Solve for $I_{D[0]}$ from diode characteristic equation
+#+BEGIN_EXPORT latex
+\noindent
+\[I_{D[0]} = I_S\cdot e^{V_{D[0]}/V_T}\]
+#+END_EXPORT
+
+#+ATTR_LATEX: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports both :results output latex :session s435
+i['D'].append((i['S']*numpy.exp(v['D'][0] / v['T'])).to('mA'))
+print("\\noindent\\[I_{D[0]} =", f"{i['D'][0]:.3~Lx}\\]")
 #+END_SRC
 
 #+RESULTS:
 #+BEGIN_EXPORT latex
-\begin{center} \(I_D = \SI[]{0.014}{\ampere}\) \end{center}
+\noindent\[I_{D[0]} = \SI[]{14.5}{\milli\ampere}\]
 #+END_EXPORT
 
+*** Solve for $I_{D[1]}$ by KVL
+#+BEGIN_EXPORT latex
+\noindent\[V_{DD} = I_D R + V_D\]
+\[\text{So, } I_D = \frac{V_{DD} - V_D}{R}\]
+#+END_EXPORT
 
-*** Iterative solution for $V_D$ and $I_D$: 
-    Assume \(V_T = 25\si{mV}\) (Thermal voltage at room temperature).
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports both :results output latex :session s435
+i['D'].append(((v['DD'] - v['D'][0])/R).to('mA'))
+print("\\noindent\\[I_{D[1]} =", f"{i['D'][1]:.3~Lx}\\]")
+#+END_SRC
 
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\noindent\[I_{D[1]} = \SI[]{0.3}{\milli\ampere}\]
+#+END_EXPORT
+
+*** Iterative solution for $V_D$ and $I_D$
 #+BEGIN_EXPORT latex
 \begin{equation*}
-  V_1 - V_0 = V_T \ln{\frac{I_1}{I_0}}
+  V_{D[n]} - V_{D[n-1]} = V_T \ln{\frac{I_{D[n]}}{I_{D[n-1]}}}
 \end{equation*}
 #+END_EXPORT
 
-#+BEGIN_SRC python :exports both :results output latex :session s435
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports both :results output table :session s435
+iterations = 7
 
+table = [["Iteration", "$V_D$ (V)", "$I_D$ (mA)"],
+         [0, f"{v['D'][0].magnitude:.6}", f"{i['D'][0].magnitude:.6}"]]
 
+for n in range(1, iterations+1):
+    v['D'].append(v['D'][n-1] + v['T']*numpy.log(i['D'][n]/i['D'][n-1]))
+    table.append([n, f"{v['D'][n].magnitude:.6}", f"{i['D'][n].magnitude:.6}"])
+    i['D'].append(((v['DD'] - v['D'][n])/R).to('mA'))
+
+print(table)
 #+END_SRC
 
+#+RESULTS:
+| Iteration | $V_D$ (V)  | $I_D$ (mA)  |
+|         0 | 0.7 V      | 14.4626 mA  |
+|         1 | 0.603112 V | 0.3 mA      |
+|         2 | 0.610108 V | 0.396888 mA |
+|         3 | 0.609664 V | 0.389892 mA |
+|         4 | 0.609692 V | 0.390336 mA |
+|         5 | 0.603112 V | 0.390308 mA |
+|         6 | 0.610108 V | 0.396888 mA |
+|         7 | 0.609664 V | 0.389892 mA |
+|         8 | 0.609692 V | 0.390336 mA |
+|         9 | 0.603112 V | 0.390308 mA |
+|        10 | 0.610108 V | 0.396888 mA |
+
+* 4.37
+  #+attr_latex: :width \linewidth/2
+  [[./figure/questions/4.37.png]]
+
+*** Circuit Design
+    #+attr_latex: :width \linewidth/2
+    [[./figure/4.37_background.png]]
+
+*** Given
+
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :results silent :session s437
+import api.homework_2 as api
+import pint
+import math
+unit = pint.UnitRegistry()
+
+diodeCount = 4
+i = {'D': [1 * unit.mA]}
+v = {'DD': 15 * unit.V, 'D': [0.75 * unit.V], 'T': 25 * unit.mV, 'O': 3.3 * unit.V}
+#+END_SRC
+
+*** Solve for $I_S$
+
+Finding the saturation current using the characteristic diode equation
+allows us to use the equation again to solve for the current of the circuit
+with a different voltage across the diodes.
+
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :results output latex :exports both :session s437
+i['S'] = i['D'][0]*math.exp(-v['D'][0]/v['T'])
+api.printEquation("I_S", i['S'], 4)
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\noindent\[I_S = \SI[]{9.358e-14}{\milli\ampere}\]
+#+END_EXPORT
+
+*** Solve for \(V_{D[1]}\) and \(I_{D[1]}\)
+
+The output voltage, \(V_O\), must be split among the diodes in
+series. Once we have the voltage drop for each diode, we find the
+corresponding current using the characteristic diode equation.
+
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :results output latex :exports both :session s437
+v['D'].append(v['O']/diodeCount)
+i['D'].append(i['S']*math.exp(v['D'][1]/v['T']))
+api.printEquation("V_{D[1]}", v['D'][1], 4)
+api.printEquation("I_{D[1]}", i['D'][1], 4)
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\noindent\[V_{D[1]} = \SI[]{0.825}{\volt}\]
+\noindent\[I_{D[1]} = \SI[]{20.09}{\milli\ampere}\]
+#+END_EXPORT
+
+*** Solve for R
+
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :results output latex :exports both :session s437
+R = ((v['DD'] - v['O'])/i['D'][1]).to('ohm')
+api.printBoxedEquation("R", R, 4)
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\noindent\[\boxed{ R = \SI[]{582.5}{\ohm} }\]
+#+END_EXPORT
+
+* 4.40
+  #+attr_latex: :width \linewidth/2
+  [[./figure/questions/4.40.png]]
+
+
+
+* Spice
 #+BEGIN_SRC spice :exports both :results output raw :var file="figure/temp"
 .title dual rc ladder
 R1 int in 5k
@@ -81,3 +203,16 @@ gnuplot $file v(out)
 
 #+RESULTS:
 [[file:./tutorial.png]]
+* Appendix: Code
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :eval no :tangle ./api/homework_2.py
+import pint
+
+a = 5
+
+def printEquation(tag, value, digits):
+    print(f"\\noindent\\[{tag} = {value:.{digits}Lx}\\]")
+
+def printBoxedEquation(tag, value, digits):
+    print("\\noindent\\[\\boxed{", f"{tag} = {value:.{digits}Lx}", "}\\]")
+#+END_SRC
