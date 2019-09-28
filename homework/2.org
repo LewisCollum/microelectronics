@@ -183,7 +183,35 @@ api.printBoxedEquation("R", R, 4)
   #+attr_latex: :width \linewidth/2
   [[./figure/questions/4.40.png]]
 
+** (A)
+*** Circuit Label Reference
+    [[./figure/4.40A.png]]
+#+BEGIN_SRC python :results output
+import api.homework_2 as api
+from api.homework_2 import Node, Branch
+unit = api.unit
 
+node = {
+    'ground': Node(0*unit.V),
+    'C': Node(10*unit.V),
+    'D': Node(-10*unit.V),
+}
+
+branch = {
+    'D1': Branch(0.0*unit.V),
+    'D2': Branch(0.0*unit.V)
+}
+
+node['B'] = Node.toBranchNode(node['ground'], branch['D1'])
+node['A'] = Node.fromBranchNode(branch['D2'], node['B'])
+print(node['A'].voltage)
+#+END_SRC
+
+#+RESULTS:
+: 0.0 volt
+
+
+** (B)
 
 * Spice
 #+BEGIN_SRC spice :exports both :results output raw :var file="figure/temp"
@@ -205,14 +233,60 @@ gnuplot $file v(out)
 [[file:./tutorial.png]]
 * Appendix: Code
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC python :eval no :tangle ./api/homework_2.py
+#+BEGIN_SRC python :results output :tangle ./api/homework_2.py
+from __future__ import annotations
 import pint
+import unittest
 
-a = 5
+unit = pint.UnitRegistry()
 
 def printEquation(tag, value, digits):
     print(f"\\noindent\\[{tag} = {value:.{digits}Lx}\\]")
 
 def printBoxedEquation(tag, value, digits):
     print("\\noindent\\[\\boxed{", f"{tag} = {value:.{digits}Lx}", "}\\]")
+
+
+class Node:
+    def __init__(self, name: str, ):
+        self.name = name
+        self.voltage = voltage
+        self.branches = []
+
+    def link(self, branch: Branch):
+        self.branches.append(branch)
+        
+    @classmethod
+    def fromBranchNode(cls, branch, node):
+        return Node(node.voltage + branch.drop)
+
+    @classmethod
+    def toBranchNode(cls, node, branch):
+        return Node(node.voltage - branch.drop)
+
+class Branch:
+    def __init__(self, drop):
+        self.drop = drop
+
+
+class TestBranchNode(unittest.TestCase):
+    def test_nodeFromBranchNode(self):
+        branch = Branch(1)
+        node =  Node(1)
+        newNode = Node.fromBranchNode(branch, node)
+
+        self.assertEqual(newNode.voltage, 2)
+
+    def test_nodeToBranchNode(self):
+        branch = Branch(1)
+        node =  Node(1)
+        newNode = Node.toBranchNode(node, branch)
+
+        self.assertEqual(newNode.voltage, 0)
+        
+
+if __name__=='__main__':
+    unittest.main()
 #+END_SRC
+
+#+RESULTS:
