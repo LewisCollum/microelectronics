@@ -1,4 +1,4 @@
-#+latex_class_options: [fleqn]
+#+latex_class_options: [fleqn, parskip=full]
 #+latex_header: \usepackage{homework}
 
 #+title: EE341 Fall 2019 HW \jobname
@@ -182,38 +182,433 @@ api.printBoxedEquation("R", R, 4)
 * 4.40
   #+attr_latex: :width \linewidth/2
   [[./figure/questions/4.40.png]]
-
 ** (A)
 *** Circuit Label Reference
     [[./figure/4.40A.png]]
-#+BEGIN_SRC python :results output
+
+*** Solve for \(I_{D1}\), \(I_{D2}\), \(V_A\), \(V_B\)
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :results output latex :exports both
 import api.homework_2 as api
 from api.homework_2 import Node, Branch
 unit = api.unit
 
 node = {
     'ground': Node(0*unit.V),
-    'C': Node(10*unit.V),
-    'D': Node(-10*unit.V),
+    'C': Node.fromVoltage(10*unit.V),
+    'D': Node.fromVoltage(-10*unit.V),
 }
 
 branch = {
-    'D1': Branch(0.0*unit.V),
-    'D2': Branch(0.0*unit.V)
+    'D1': Branch.fromVoltage(0.7*unit.V),
+    'D2': Branch.fromVoltage(0.7*unit.V),
 }
 
-node['B'] = Node.toBranchNode(node['ground'], branch['D1'])
-node['A'] = Node.fromBranchNode(branch['D2'], node['B'])
-print(node['A'].voltage)
+node['B'] = Node.fromNodeBranch(node['ground'], branch['D1'])
+node['A'] = Node.toBranchNode(branch['D2'], node['B'])
+
+branch['BD'] = Branch.fromNodeToNode(node['B'], node['D'])
+branch['CA'] = Branch.fromNodeToNode(node['C'], node['A'])
+branch['CB'] = branch['CA'].swallowBranch(branch['D2'])
+
+branch['BD'].setCurrentFromResistance(5*unit.kohm)
+branch['CB'].setCurrentFromResistance(10*unit.kohm)
+branch['D1'].setCurrentTowardsBranches(-branch['CB'], branch['BD'])
+
+api.printBoxedEquation("I_{D1}", branch['D1'].current.to('mA'), 3)
+api.printBoxedEquation("I_{D2}", branch['CB'].current.to('mA'), 3)
+api.printBoxedEquation("V_A", node['A'].voltage, 3)
+api.printBoxedEquation("V_B", node['B'].voltage, 3)
 #+END_SRC
 
 #+RESULTS:
-: 0.0 volt
-
+#+BEGIN_EXPORT latex
+\noindent\[\boxed{ I_{D1} = \SI[]{0.79}{\milli\ampere} }\]
+\noindent\[\boxed{ I_{D2} = \SI[]{1.07}{\milli\ampere} }\]
+\noindent\[\boxed{ V_A = \SI[]{0.0}{\volt} }\]
+\noindent\[\boxed{ V_B = \SI[]{-0.7}{\volt} }\]
+#+END_EXPORT
 
 ** (B)
+*** Circuit Label Reference
+    [[./figure/4.40B.png]]
 
+*** Assume both diodes are conducting
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :results output latex :exports both :session s440B
+import api.homework_2 as api
+from api.homework_2 import Node, Branch, unit
+
+node = {'C': Node.fromVoltage(10*unit.V), 'D': Node.fromVoltage(-10*unit.V)}
+branch = {'D1': Branch.fromVoltage(0.7*unit.V), 'D2': Branch.fromVoltage(0.7*unit.V)}
+node['B'] = Node.fromNodeBranch(Node(0.0*unit.V), branch['D1'])
+node['A'] = Node.toBranchNode(branch['D2'], node['B'])
+
+branch['BD'] = Branch.fromNodeToNode(node['B'], node['D'])
+branch['CA'] = Branch.fromNodeToNode(node['C'], node['A'])
+branch['CB'] = branch['CA'].swallowBranch(branch['D2'])
+
+branch['CB'].setCurrentFromResistance(5*unit.kohm)
+branch['BD'].setCurrentFromResistance(10*unit.kohm)
+branch['D1'].setCurrentTowardsBranches(branch['BD'], -branch['CB'])
+
+api.printEquation("I_{D1}", branch['D1'].current.to('mA'), 3)
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\noindent\[I_{D1} = \SI[]{-1.21}{\milli\ampere}\]
+#+END_EXPORT
+
+D1 is not conducting when reverse-biased, so the assumption that both
+diodes are conducting is wrong.
+
+*** Assume D1 is not conducting, but D2 is
+    [[./figure/4.40B2.png]]
+
+
+*** Solve for \(V_A\)
+The relationship between nodes A and B is
+\[V_B = V_A - 0.7\si{V} \]
+
+The current through the branch can be related as
+\[\frac{10\si{V} - V_A}{5\si{k\ohm}} = I_{D2} = \frac{V_B + 10\si{V}}{10\si{k\ohm}}\]
+
+Substituting \(V_B\) for \(V_A - 0.7\si{V}\) gives 
+#+BEGIN_EXPORT latex
+\begin{gather*}
+\frac{10\si{V} - V_A}{5\si{k\ohm}} = \frac{V_A + 9.3\si{V}}{10\si{k\ohm}} \\
+\implies 20 - 2V_A = V_A + 9.3 \\
+\implies 3V_A = 10.7 \\
+\therefore \boxed{V_A = 3.57\si{V}}
+\end{gather*}
+#+END_EXPORT
+
+*** Solve for \(V_B\)
+\noindent\[V_B = 3.57\si{V} - 0.7\si{V} \]
+\[\boxed{V_B = 2.87\si{V}}\]
+
+*** Solve for \(I_{D2}\)
+\noindent\[I_{D2} = \frac{10\si{V} - 3.57\si{V}}{5\si{k\ohm}}\]
+\[\boxed{I_{D2} = 1.286\si{mA}}\]
+
+* 4.46
+  #+attr_latex: :width 0.4\linewidth
+  [[./figure/questions/4.46.png]]
+
+** (A)
+\[i_D(t) \approx I_D \left(1 + \frac{v_d}{V_T} \right) \]
+\[i_D(t) \approx I_D \left(1 + \frac{5\cdot2\si{mV}}{25\si{mV}} \right) \]
+\[i_D(t) \approx 1.4 \cdot I_D\]
+Therefore, current changes by 40%.
+
+** (B) Current change limited to 10%
+Then,
+\[.1 = \frac{v_d\cdot 2}{V_T}\]
+\[v_d = 0.05 \cdot 25\si{mV}\]
+\[\boxed{ v_d = 1.25\si{mV} \text{ maximum allowable positive or negative voltage}}\]
+
+* 4.62
+  #+attr_latex: :width 0.4\linewidth
+  [[./figure/questions/4.62.png]]
+
+** (A) Find \(V_{Z0}\)
+\[-V_Z = 9.1\si{V}\]
+\[-I_{Zr} = 20\si{mA}\]
+\[r_Z = 10\si{\ohm}\]
+
+\[V_{Z0} = V_Z - r_Z I_Z\]
+\[V_{Z0} = -9.1\si{V} + 10\si{\ohm}\cdot 20\si{mA} = -9.1 + 0.2\] 
+\[\boxed{V_{Z0} = -8.9}\]
+
+** (B) Find \(V_{Z(10\si{mA})}\)
+\[V_{Z} = -8.9\si{V} - 10\si{\ohm}\cdot 10\si{mA}\]
+\[\boxed{V_{Z} = -9.0\si{V}}\]
+
+** (C) Find \(V_{Z(50\si{mA})}\)
+\[V_{Z} = -8.9\si{V} - 10\si{\ohm}\cdot 50\si{mA}\]
+\[\boxed{V_{Z} = -9.4\si{V}}\]
+
+* E4.26
+  #+attr_latex: :width 0.6\linewidth
+  [[./figure/questions/E4.26.png]]
+
+** (A) \(v_I \ge 5.7\si{V}\)
+   [[./figure/E4.26A.png]]
+   
+   \[v_I = IR_A + 0.7\si{V} + 5\si{V} + IR_B = I(R_A + R_B) + 5.7\]
+   \[I = \frac{v_{R_B}}{R_B}\]
+   \[v_R_B = v_O - 0.7\si{V} - 5\si{V} = v_O - 5.7\si{V}\]
+   
+   Now we substitute:
+   \[v_I = \frac{v_{R_B}(R_A + R_B)}{R_B} + 5.7\]
+   \[v_I = (v_O - 5.7)\frac{R_A + R_B}{R_B} + 5.7\]
+
+   Now solve for \(v_O\):
+   \[v_O = (v_I - 5.7)\frac{R_B}{R_A + R_B} + 5.7\]
+   \[\boxed{v_O = \frac{1}{2}(v_I - 5.7) + 5.7}\]
+** (B) \(v_I \le -5.7\si{V}\)
+   [[./figure/E4.26B.png]]
+   \[v_I = IR_A - 0.7\si{V} - 5\si{V} + IR_B = I(R_A + R_B) - 5.7\]
+   \[I = \frac{v_{R_B}}{R_B}\]
+   \[v_R_B = v_O + 0.7\si{V} + 5\si{V} = v_O + 5.7\si{V}\]
+   
+   Now we substitute:
+   \[v_I = \frac{v_{R_B}(R_A + R_B)}{R_B} - 5.7\]
+   \[v_I = (v_O + 5.7)\frac{R_A + R_B}{R_B} - 5.7\]
+
+   Now solve for \(v_O\):
+   \[v_O = (v_I + 5.7)\frac{R_B}{R_A + R_B} - 5.7\]
+   \[\boxed{v_O = \frac{1}{2}(v_I + 5.7) - 5.7}\]
+
+** (C) \(-5.7 \le v_I \le 5.7\)
+   [[./figure/E4.26C.png]]
+   \[\boxed{v_O = v_I}\]
+
+** (Transfer Plot)
+   #+attr_latex: :width 0.6\linewidth
+   [[./figure/E4.26Transfer.png]]
 * Spice
+
+** (A)
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC spice :exports code :results output raw :var file="figure/spice"
+.title Diode I-V Characteristics
+.model diode d(IS=1.0e-16, N=1.1, temp=20)
+v1 1 0
+D1 1 0 diode
+
+.control
+dc v1 0 2 0.001
+set gnuplot_terminal=png/quit
+gnuplot $file -i(v1) ylimit 0 2e-3
+.endc
+.end
+#+END_SRC
+
+#+RESULTS:
+[[file:./figure/spice.png]]
+
+*** Plot:
+    #+attr_latex: :width 0.6\linewidth
+    [[./figure/spice_modified.png]]
+
+** (b) \(V_{DD} = 1\si{V}\)
+*** Given
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports code :results silent :session spice
+import numpy
+import pint
+unit = pint.UnitRegistry()
+
+R = 1 * unit.kohm
+v = {'DD': 1 * unit.V, 'D': []}
+i = {'S': 10e-16 * unit.A, 'D': []}
+#+END_SRC
+
+*** Assume
+#+BEGIN_EXPORT latex
+\noindent
+\begin{gather*}
+    V_T = 25\si{mV} \text{ (thermal voltage at room temperature).}\\
+    V_{D[0]} = 0.7\si{V}
+\end{gather*}
+#+END_EXPORT
+
+#+ATTR_LATEX: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports code :results silent :session spice
+v['T'] = 25 * unit.mV
+v['D'].append(0.7 * unit.V)
+#+END_SRC
+
+*** Solve for $I_{D[0]}$ from diode characteristic equation
+#+BEGIN_EXPORT latex
+\noindent
+\[I_{D[0]} = I_S\cdot e^{V_{D[0]}/V_T}\]
+#+END_EXPORT
+
+#+ATTR_LATEX: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports both :results output latex :session spice
+i['D'].append((i['S']*numpy.exp(v['D'][0] / (v['T']*1.1))).to('mA'))
+print("\\noindent\\[I_{D[0]} =", f"{i['D'][0]:.3~Lx}\\]")
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\noindent\[I_{D[0]} = \SI[]{0.113}{\milli\ampere}\]
+#+END_EXPORT
+
+*** Solve for $I_{D[1]}$ by KVL
+#+BEGIN_EXPORT latex
+\noindent\[V_{DD} = I_D R + V_D\]
+\[\text{So, } I_D = \frac{V_{DD} - V_D}{R}\]
+#+END_EXPORT
+
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports both :results output latex :session spice
+i['D'].append(((v['DD'] - v['D'][0])/R).to('mA'))
+print("\\noindent\\[I_{D[1]} =", f"{i['D'][1]:.3~Lx}\\]")
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\noindent\[I_{D[1]} = \SI[]{0.3}{\milli\ampere}\]
+#+END_EXPORT
+
+*** Iterative solution for $V_D$ and $I_D$
+#+BEGIN_EXPORT latex
+\begin{equation*}
+  V_{D[n]} - V_{D[n-1]} = V_T \ln{\frac{I_{D[n]}}{I_{D[n-1]}}}
+\end{equation*}
+#+END_EXPORT
+
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports both :results output table :session spice
+iterations = 3
+
+table = [["Iteration", "$V_D$ (V)", "$I_D$ (mA)"],
+         [0, f"{v['D'][0].magnitude:.6}", f"{i['D'][0].magnitude:.6}"]]
+
+for n in range(1, iterations+1):
+    v['D'].append(v['D'][n-1] + v['T']*numpy.log(i['D'][n]/i['D'][n-1]))
+    table.append([n, f"{v['D'][n].magnitude:.6}", f"{i['D'][n].magnitude:.6}"])
+    i['D'].append(((v['DD'] - v['D'][n])/R).to('mA'))
+
+print(table)
+#+END_SRC
+
+#+RESULTS:
+| Iteration | $V_D$ (V) | $I_D$ (mA) |
+|         0 |       0.7 |   0.113441 |
+|         1 |  0.724313 |        0.3 |
+|         2 |    0.7222 |   0.275687 |
+|         3 |  0.722391 |     0.2778 |
+
+** (b) \(V_{DD} = 2\si{V}\)
+*** Given
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports code :results silent :session spice2
+import numpy
+import pint
+unit = pint.UnitRegistry()
+
+R = 1 * unit.kohm
+v = {'DD': 2 * unit.V, 'D': []}
+i = {'S': 10e-16 * unit.A, 'D': []}
+#+END_SRC
+
+*** Assume
+#+BEGIN_EXPORT latex
+\noindent
+\begin{gather*}
+    V_T = 25\si{mV} \text{ (thermal voltage at room temperature).}\\
+    V_{D[0]} = 0.7\si{V}
+\end{gather*}
+#+END_EXPORT
+
+#+ATTR_LATEX: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports code :results silent :session spice2
+v['T'] = 25 * unit.mV
+v['D'].append(0.7 * unit.V)
+#+END_SRC
+
+*** Solve for $I_{D[0]}$ from diode characteristic equation
+#+BEGIN_EXPORT latex
+\noindent
+\[I_{D[0]} = I_S\cdot e^{V_{D[0]}/V_T}\]
+#+END_EXPORT
+
+#+ATTR_LATEX: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports both :results output latex :session spice2
+i['D'].append((i['S']*numpy.exp(v['D'][0] / v['T']/1.1)).to('mA'))
+print("\\noindent\\[I_{D[0]} =", f"{i['D'][0]:.3~Lx}\\]")
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\noindent\[I_{D[0]} = \SI[]{0.113}{\milli\ampere}\]
+#+END_EXPORT
+
+*** Solve for $I_{D[1]}$ by KVL
+#+BEGIN_EXPORT latex
+\noindent\[V_{DD} = I_D R + V_D\]
+\[\text{So, } I_D = \frac{V_{DD} - V_D}{R}\]
+#+END_EXPORT
+
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports both :results output latex :session spice2
+i['D'].append(((v['DD'] - v['D'][0])/R).to('mA'))
+print("\\noindent\\[I_{D[1]} =", f"{i['D'][1]:.3~Lx}\\]")
+#+END_SRC
+
+#+RESULTS:
+#+BEGIN_EXPORT latex
+\noindent\[I_{D[1]} = \SI[]{1.3}{\milli\ampere}\]
+#+END_EXPORT
+
+*** Iterative solution for $V_D$ and $I_D$
+#+BEGIN_EXPORT latex
+\begin{equation*}
+  V_{D[n]} - V_{D[n-1]} = V_T \ln{\frac{I_{D[n]}}{I_{D[n-1]}}}
+\end{equation*}
+#+END_EXPORT
+
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports both :results output table :session spice2
+iterations = 3
+
+table = [["Iteration", "$V_D$ (V)", "$I_D$ (mA)"],
+         [0, f"{v['D'][0].magnitude:.6}", f"{i['D'][0].magnitude:.6}"]]
+
+for n in range(1, iterations+1):
+    v['D'].append(v['D'][n-1] + v['T']*numpy.log(i['D'][n]/i['D'][n-1]))
+    table.append([n, f"{v['D'][n].magnitude:.6}", f"{i['D'][n].magnitude:.6}"])
+    i['D'].append(((v['DD'] - v['D'][n])/R).to('mA'))
+
+print(table)
+#+END_SRC
+
+#+RESULTS:
+| Iteration | $V_D$ (V) | $I_D$ (mA) |
+|         0 |       0.7 |        1.3 |
+|         1 |       0.7 |        1.3 |
+|         2 |       0.7 |        1.3 |
+|         3 |       0.7 |        1.3 |
+
+
+
+
+
+** COMMENT Test2
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC spice :exports both :results output raw :var file="figure/spice2"
+Full-wave bridge rectifier and voltage regulator circuit (first line used for Title)
+vin 1 3 sin(0 10 60 0 0) ; (input source - comments after ;)
+
+D1  0 1 diode1; (this diode is described by .model diode1)
+D2  0 3 diode1
+D3  1 2 diode1
+D4  3 2 diode1
+R1  2 4 100
+C1  4 0 10u; (Node 0 must be used as the ground)
+R2  4 5 500
+D5  0 5 diode2; (this diode is described by .model diode2)
+R3  5 0 10k
+.model diode1  d  is=0.01p  vj=0.9; (diode model. Is=1e-14 Amp & junction potential = 0.9V; you can also include cjo, tt, …)
+.model diode2 d  bv=5  ibv=0.002; (Zener diode model; breakdown voltage=5V at Iz=2mA; Default values are used for Is, VJ ...)
+
+.control
+tran 0.1ms 100ms 50ms
+set gnuplot_terminal=png/quit
+gnuplot $file V(3) V(2) V(1) V(4) V(5)
+.endc
+.end
+#+END_SRC
+
+#+RESULTS:
+[[file:./figure/spice.png]]
+** COMMENT Test1
+#+attr_latex: :options bgcolor=codeBackground
 #+BEGIN_SRC spice :exports both :results output raw :var file="figure/temp"
 .title dual rc ladder
 R1 int in 5k
@@ -230,7 +625,7 @@ gnuplot $file v(out)
 #+END_SRC
 
 #+RESULTS:
-[[file:./tutorial.png]]
+[[file:./figure/temp.png]]
 * Appendix: Code
 #+attr_latex: :options bgcolor=codeBackground
 #+BEGIN_SRC python :results output :tangle ./api/homework_2.py
@@ -248,43 +643,118 @@ def printBoxedEquation(tag, value, digits):
 
 
 class Node:
-    def __init__(self, name: str, ):
-        self.name = name
+    def __init__(self, voltage):
         self.voltage = voltage
-        self.branches = []
 
-    def link(self, branch: Branch):
-        self.branches.append(branch)
+    @classmethod
+    def fromVoltage(cls, voltage):
+        return Node(voltage)
         
     @classmethod
-    def fromBranchNode(cls, branch, node):
+    def toBranchNode(cls, branch, node):
         return Node(node.voltage + branch.drop)
 
     @classmethod
-    def toBranchNode(cls, node, branch):
+    def fromNodeBranch(cls, node, branch):
         return Node(node.voltage - branch.drop)
+
+    def __sub__(self, b):
+        return self.voltage - b.voltage
 
 class Branch:
     def __init__(self, drop):
         self.drop = drop
+        self.current = None
 
+    @classmethod
+    def fromVoltage(cls, voltage):
+        return Branch(voltage)
 
+    @classmethod
+    def fromNodeToNode(cls, nodeA, nodeB):
+        return Branch(nodeA - nodeB)
+
+    def swallowBranch(self, branch):
+        newBranch = Branch(self.drop + branch.drop)
+        if self.current != None:
+            newBranch.current = self.current
+        elif branch.current != None:
+            newBranch.current = branch.current
+        
+        if branch.current == None or self.current == None:
+            return newBranch
+        else:
+            raise RuntimeError("Currents must be the same.")
+
+    def clearCurrent(self):
+        self.current = None
+        
+    def __add__(self, b):
+        return self.current + b.current
+
+    def __radd__(self, other):
+        if other == 0:
+            return self
+        else:
+            return self.__add__(other)
+
+    def __neg__(self):
+        newBranch = Branch(self.drop)
+        newBranch.current = -self.current
+        return newBranch
+    
+    def setCurrentFromResistance(self, resistance):
+        self.current = self.drop/resistance
+
+    def setCurrentTowardsBranches(self, *branches):
+        self.current = sum(branches)
+
+class TestBranchAdd(unittest.TestCase):
+    def setUp(self):
+        self.branchA = Branch.fromVoltage(1)
+        self.branchB = Branch.fromVoltage(2)
+    def test_currentFromBranchA(self):
+        self.branchA.current = 1
+
+        newNode = self.branchA.swallowBranch(self.branchB)
+        
+        self.assertEqual(newNode.current, self.branchA.current)
+
+    def test_currentFromBranchB(self):
+        self.branchB.current = 1
+
+        newNode = self.branchA.swallowBranch(self.branchB)
+
+        self.assertEqual(newNode.current, self.branchB.current)        
+
+    def test_currentIsNone(self):
+        newNode = self.branchA.swallowBranch(self.branchB)
+
+        self.assertEqual(newNode.current, None) 
+
+    def test_currentNotSame_throwsException(self):
+        self.branchA.current = 1
+        self.branchB.current = 2
+
+        self.assertRaises(RuntimeError, lambda: self.branchA.swallowBranch(self.branchB))
+        
 class TestBranchNode(unittest.TestCase):
+    def setUp(self):
+        self.branch = Branch.fromVoltage(1)
+        self.node = Node.fromVoltage(1)
+        
     def test_nodeFromBranchNode(self):
-        branch = Branch(1)
-        node =  Node(1)
-        newNode = Node.fromBranchNode(branch, node)
-
+        newNode = Node.toBranchNode(self.branch, self.node)
         self.assertEqual(newNode.voltage, 2)
 
     def test_nodeToBranchNode(self):
-        branch = Branch(1)
-        node =  Node(1)
-        newNode = Node.toBranchNode(node, branch)
-
+        newNode = Node.fromNodeBranch(self.node, self.branch)
         self.assertEqual(newNode.voltage, 0)
         
-
+    def test_branchCurrentFromResistance(self):
+        self.branch.setCurrentFromResistance(1)
+        self.assertEqual(self.branch.current, 1)
+         
 if __name__=='__main__':
     unittest.main()
 #+END_SRC
