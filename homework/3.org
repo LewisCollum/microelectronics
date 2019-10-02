@@ -1,0 +1,14 @@
+#+latex_class_options: [fleqn]
+#+latex_header: \usepackage{homework}
+
+#+title: EE341 Fall 2019 HW \jobname
+#+author: Lewis Collum
+#+date: Updated: \today
+[[https://github.com/LewisCollum/microelectronics][github.com/LewisCollum/microelectronics]]
+
+* COMMENT Notes
+** Triode
+   Saturation: Beyond Pitch-Off
+   \[V_{GS} - V_{tn} = V_{OV} \text{ pinch-off voltage}\]
+   \(V_{tn}\): Threshold voltage
+   
