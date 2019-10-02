@@ -6,6 +6,95 @@
 #+date: Updated: \today
 [[https://github.com/LewisCollum/microelectronics][github.com/LewisCollum/microelectronics]]
 
+[[./figure/3_spiceLayout.png]]
+
+#+name: circuit
+#+BEGIN_SRC spice :eval no :exports none
+.model diode d(IS=10e-15, n=1.1)
+v1 upper 0 dc 0 ac 5 sin(0 5 60Hz)
+v2 0 lower dc 0 ac 5 sin(0 5 60Hz)
+
+d1 upper out diode
+d2 lower out diode
+
+r1 out 0 2k
+.end
+#+END_SRC
+
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC spice :noweb yes :exports both :results output raw :var file="figure/3_voltage"
+.title AC Retifier Voltage Source and Output Comparison
+<<circuit>>
+.control
+tran 0.05ms 66.66ms 16.66ms
+set gnuplot_terminal=png/quit
+gnuplot $file v(upper) v(out)
+.endc
+#+END_SRC
+
+#+attr_latex: :width 0.5\linewidth
+#+RESULTS:
+[[file:./figure/3_voltage.png]]
+
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC spice :noweb yes :exports both :results output raw :var file="figure/3_currentdiodes"
+.title AC Retifier Diode Current
+<<circuit>>
+.control
+save @d1[id] @d2[id]
+tran 0.05ms 66.66ms 16.66ms
+set gnuplot_terminal=png/quit
+gnuplot $file @d1[id] @d2[id]
+.endc
+#+END_SRC
+
+#+attr_latex: :width 0.5\linewidth
+#+RESULTS:
+[[file:./figure/3_currentdiodes.png]]
+
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC spice :noweb yes :exports both :results output raw :var file="figure/3_currentresistor"
+.title AC Rectifier Resistor Current
+<<circuit>>
+.control
+save @r1[i]
+tran 0.05ms 66.66ms 16.66ms
+set gnuplot_terminal=png/quit
+gnuplot $file @r1[i]
+.endc
+#+END_SRC
+
+#+attr_latex: :width 0.5\linewidth
+#+RESULTS:
+[[file:./figure/3_currentresistor.png]]
+
+* \(V_S - V_O\)
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC spice :noweb yes :exports both :results output raw :var file="figure/3_voltagepeak"
+.title AC Retifier Voltage Source and Output Peak Comparison
+<<circuit>>
+.control
+tran 0.05ms 66.66ms 16.66ms
+set gnuplot_terminal=png/quit
+gnuplot $file v(upper) v(out) xlimit 20ms 21.65ms ylimit 4.2 5
+.endc
+#+END_SRC
+
+#+attr_latex: :width 0.5\linewidth
+#+RESULTS:
+[[file:./figure/3_voltagepeak.png]]
+
+The difference is not constant. This is because as the current through
+the diode increase, the voltage drop across the diode increase
+logarithmically.
+
+The difference reaches its max at every quarter cycle. From the plot
+above, the maximum observable difference is about \[5\si{V} -
+4.25\si{V} = 0.75\si{V}.\]
+
+
+
+
 * COMMENT Notes
 ** Triode
    Saturation: Beyond Pitch-Off
