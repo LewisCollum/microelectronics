@@ -1,13 +1,19 @@
+#+property: header-args:spice :cache yes :noweb yes :exports both :results output raw
 #+latex_class_options: [fleqn]
 #+latex_header: \usepackage{homework}
+#+export_exclude_tags: noexport
+
 
 #+title: EE341 Fall 2019 HW \jobname
 #+author: Lewis Collum
 #+date: Updated: \today
 [[https://github.com/LewisCollum/microelectronics][github.com/LewisCollum/microelectronics]]
 
-[[./figure/3_spiceLayout.png]]
-
+* Spice Layout
+  #+attr_latex: :width 0.3\linewidth
+  [[./figure/3_spiceLayout.png]]
+   
+** circuit spice                                                   :noexport:
 #+name: circuit
 #+BEGIN_SRC spice :eval no :exports none
 .model diode d(IS=10e-15, n=1.1)
@@ -21,8 +27,10 @@ r1 out 0 2k
 .end
 #+END_SRC
 
+* (A) \(v_S\) vs \(v_O\)
+** Voltage Source and Output Comparison Plot
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :noweb yes :exports both :results output raw :var file="figure/3_voltage"
+#+BEGIN_SRC spice :var file="figure/3_voltage"
 .title AC Retifier Voltage Source and Output Comparison
 <<circuit>>
 .control
@@ -32,12 +40,13 @@ gnuplot $file v(upper) v(out)
 .endc
 #+END_SRC
 
-#+attr_latex: :width 0.5\linewidth
-#+RESULTS:
+#+attr_latex: :width 0.5\linewidth :placement [H]
+#+RESULTS[756fb51ac0075630cf9170c576dc3ee61ff1fb83]:
 [[file:./figure/3_voltage.png]]
 
+** Current Through Diodes Plot
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :noweb yes :exports both :results output raw :var file="figure/3_currentdiodes"
+#+BEGIN_SRC spice :var file="figure/3_currentdiodes"
 .title AC Retifier Diode Current
 <<circuit>>
 .control
@@ -48,12 +57,13 @@ gnuplot $file @d1[id] @d2[id]
 .endc
 #+END_SRC
 
-#+attr_latex: :width 0.5\linewidth
+#+attr_latex: :width 0.5\linewidth :placement [H]
 #+RESULTS:
 [[file:./figure/3_currentdiodes.png]]
 
+** Current Through the Resistor Plot
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :noweb yes :exports both :results output raw :var file="figure/3_currentresistor"
+#+BEGIN_SRC spice :var file="figure/3_currentresistor"
 .title AC Rectifier Resistor Current
 <<circuit>>
 .control
@@ -64,36 +74,315 @@ gnuplot $file @r1[i]
 .endc
 #+END_SRC
 
-#+attr_latex: :width 0.5\linewidth
+#+attr_latex: :width 0.5\linewidth :placement [H]
 #+RESULTS:
 [[file:./figure/3_currentresistor.png]]
 
-* \(V_S - V_O\)
-#+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :noweb yes :exports both :results output raw :var file="figure/3_voltagepeak"
-.title AC Retifier Voltage Source and Output Peak Comparison
-<<circuit>>
+** Analysis of the Voltage Difference between \(v_S\) and \(v_O\)
+   The difference between the source and output voltage is not constant
+   --- assuming the conducting diode does not have a constant voltage
+   drop. The relationship between \(v_S\) and \(v_O\) is \[v_S - v_D =
+   v_O.\]
+   
+   Using spice to simulate, we can plot the transfer function as well as the
+   difference between the source and output voltages.
+
+#+BEGIN_SRC spice :var file="figure/3_transfer" :exports results
+.title Output Voltage vs Source Voltage Transfer
+.model diode d(IS=10e-15, n=1.1)
+v1 upper 0 dc 0
+d1 upper out diode
+r1 out 0 2k
+.end
 .control
-tran 0.05ms 66.66ms 16.66ms
+dc v1 0 1 0.01
 set gnuplot_terminal=png/quit
-gnuplot $file v(upper) v(out) xlimit 20ms 21.65ms ylimit 4.2 5
+gnuplot $file v(out) xlabel 'Source (V)' ylabel 'Output (V)'
 .endc
 #+END_SRC
 
-#+attr_latex: :width 0.5\linewidth
+#+caption: Demonstrates a non-constant voltage drop across the diode in relation to the source voltage.
+#+attr_latex: :width 0.5\linewidth :placement [H]
+#+RESULTS[013319306c90f159b1a544e6bfd19176d1889bf6]:
+[[file:./figure/3_transfer.png]]
+
+#+BEGIN_SRC spice :var file="figure/3_difference" :exports results
+.title Difference between Source Voltage and Output Voltage
+<<circuit>>
+.control
+tran 0.005ms 66.66ms 16.66ms
+set gnuplot_terminal=png/quit
+let difference = abs(v(upper)) - v(out)
+meas tran maxDifference max difference
+echo "$&maxDifference" > $file
+gnuplot $file difference ylabel 'Difference (V)'
+.endc
+#+END_SRC
+
+#+caption: Demonstrates a non-constant difference between the source voltage and the output voltage over time. The difference reaches its max at every quarter cycle, with the maximum difference being about \(0.75\si{V}\).
+#+attr_latex: :width 0.5\linewidth :placement [H]
+#+RESULTS[a4e2369c71658cfd3fc4c2076e7e9919bef316f3]:
+[[file:./figure/3_difference.png]]
+
+* (B) PIV Estimation
+** Theoretical PIV
+   The peak inverse voltage (PIV) for a full-wave rectifier is
+   estimated as
+   \[PIV = 2V_S - V_D.\]
+
+   \(V_S\) is \(5\si{V}\) and \(V_D\) (from the previous section) was
+   observed to be about \(0.75\si{V}\).
+
+   So,
+   \[\boxed{PIV = 2\cdot 5 - 0.75 = 9.25\si{V}}\]
+
+** Graphical PIV 
+
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC spice :var file="figure/3_maxdifference"
+.title Total Difference between Source and Output Voltages
+<<circuit>>
+.control
+run
+tran 0.05ms 66.66ms 16.66ms
+set gnuplot_terminal=png/quit
+let difference = abs(v(upper) - v(out))
+meas tran maxDifference max difference
+echo "$&maxDifference" > $file
+gnuplot $file v(upper) - v(out)
+.endc
+#+END_SRC
+
+#+attr_latex: :width 0.5\linewidth :placement [H] :placement [H]
+#+RESULTS[222e968f2c9805b63295c6c8b53fe44764d8d0ff]:
+[[file:./figure/3_maxdifference.png]]
+
+The PIV can be found, in simulation, by getting the max of the
+absolute difference between \(v_S\) and \(v_O\). In this case, the
+simulation reports that the maximum absolute difference is
+\input{./figure/3_maxdifference}.
+
+** Error
+#+name: getValueFromFile
+#+BEGIN_SRC python :var filename="./figure/3_maxdifference" :exports none :results output raw
+with open(filename) as f:
+    print(f.readline().rstrip())
+#+END_SRC   
+
+\[Error = \frac{|graphical - theoretical|}{theoretical}\]
+
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :exports both :results output raw :var graphical=getValueFromFile(file="./figure/3_maxdifference") :var theoretical=getValueFromFile(file="./figure/3_difference") :cache yes
+theoretical = 2*5 - float(theoretical)
+graphical = float(graphical)
+print(f"Error = {(graphical - theoretical)*100/theoretical:.3}%")
+#+END_SRC
+
+#+RESULTS[f2c6c52a5138dcd56a7d171af50bdd227c34e09f]:
+Error = 1.15e+03%
+
+The error was obtained from analogous simulation results and therefore
+is approximately 0%.
+
+* \(10\si{\mu F}\) Capacitor across R
+** circuit spice                                                   :noexport:
+#+name: circuitWithCapacitor
+#+BEGIN_SRC spice :eval no :exports none
+.model diode d(IS=10e-15, n=1.1)
+v1 upper 0 dc 0 ac 5 sin(0 5 60Hz)
+v2 0 lower dc 0 ac 5 sin(0 5 60Hz)
+
+d1 upper out diode
+d2 lower out diode
+
+c1 out 0 10u
+r1 out 0 2k
+.end
+#+END_SRC
+
+** Voltage Source and Output Comparison Plot
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC spice :var file="figure/3_voltagewithcapacitor1"
+.title AC Retifier Voltage Source and Output Comparison
+<<circuitWithCapacitor>>
+.control
+tran 0.05ms 66.66ms 16.66ms
+set gnuplot_terminal=png/quit
+meas tran ripple pp v(out)
+echo "$&ripple" > $file
+gnuplot $file v(upper) v(out)
+.endc
+#+END_SRC
+
+#+attr_latex: :width 0.5\linewidth :placement [H]
+#+RESULTS[9c1fdc9afd42af27fef23bca08d66bdc636af215]:
+[[file:./figure/3_voltagewithcapacitor1.png]]
+
+** Current Through Diodes Plot
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC spice :var file="figure/3_currentdiodeswithcapacitor1"
+.title AC Retifier Diode Current
+<<circuitWithCapacitor>>
+.control
+save @d1[id] @d2[id]
+tran 0.05ms 66.66ms 16.66ms
+meas tran maxCurrent max @d1[id]
+echo "$&maxCurrent" > $file
+set gnuplot_terminal=png/quit
+gnuplot $file @d1[id] @d2[id]
+.endc
+#+END_SRC
+
+#+attr_latex: :width 0.5\linewidth :placement [H]
+#+RESULTS[05eb5fcdf2ecf061d488d231c6c12f9b2aff6dc1]:
+[[file:./figure/3_currentdiodeswithcapacitor1.png]]
+
+** Current Through the Resistor Plot
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC spice :var file="figure/3_currentresistorwithcapacitor1"
+.title AC Rectifier Resistor Current
+<<circuitWithCapacitor>>
+.control
+save @r1[i]
+tran 0.05ms 66.66ms 16.66ms
+set gnuplot_terminal=png/quit
+gnuplot $file @r1[i]
+.endc
+#+END_SRC
+
+#+attr_latex: :width 0.5\linewidth :placement [H]
+#+RESULTS[9d188d78ce1f32a18c2d76084cb6269c101cad47]:
+[[file:./figure/3_currentresistorwithcapacitor1.png]]
+* \(150\si{\mu F}\) Capacitor across R
+** circuit spice                                                   :noexport:
+#+name: circuitWithCapacitor2
+#+BEGIN_SRC spice :eval no :exports none
+.model diode d(IS=10e-15, n=1.1)
+v1 upper 0 dc 0 ac 5 sin(0 5 60Hz)
+v2 0 lower dc 0 ac 5 sin(0 5 60Hz)
+
+d1 upper out diode
+d2 lower out diode
+
+c1 out 0 150u
+r1 out 0 2k
+.end
+#+END_SRC
+
+** Voltage Source and Output Comparison Plot
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC spice :var file="figure/3_voltagewithcapacitor2"
+.title AC Retifier Voltage Source and Output Comparison
+<<circuitWithCapacitor2>>
+.control
+tran 0.05ms 66.66ms 16.66ms
+meas tran ripple pp v(out)
+echo "$&ripple" > $file
+set gnuplot_terminal=png/quit
+gnuplot $file v(upper) v(out)
+.endc
+#+END_SRC
+
+#+attr_latex: :width 0.5\linewidth :placement [H]
+#+RESULTS[8ad29b42681b523a7023b5c7a30b6a01dd4325e4]:
+[[file:./figure/3_voltagewithcapacitor2.png]]
+
+** Current Through Diodes Plot
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC spice :var file="figure/3_currentdiodeswithcapacitor2"
+.title AC Retifier Diode Current
+<<circuitWithCapacitor2>>
+.control
+save @d1[id] @d2[id]
+tran 0.05ms 66.66ms 16.66ms
+meas tran maxCurrent max @d1[id]
+echo "$&maxCurrent" > $file
+set gnuplot_terminal=png/quit
+gnuplot $file @d1[id] @d2[id]
+.endc
+#+END_SRC
+
+#+attr_latex: :width 0.5\linewidth :placement [H]
+#+RESULTS[6ba6c1a716e7612c53ad855b13f0da54cd799a02]:
+[[file:./figure/3_currentdiodeswithcapacitor2.png]]
+
+** Current Through the Resistor Plot
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC spice :var file="figure/3_currentresistorwithcapacitor2"
+.title AC Rectifier Resistor Current
+<<circuitWithCapacitor2>>
+.control
+save @r1[i]
+tran 0.05ms 66.66ms 16.66ms
+set gnuplot_terminal=png/quit
+gnuplot $file @r1[i]
+.endc
+#+END_SRC
+
+#+attr_latex: :width 0.5\linewidth :placement [H]
+#+RESULTS[a39fc6d780fd25a52f080b4e3ec790a5c8df6e0e]:
+[[file:./figure/3_currentresistorwithcapacitor2.png]]
+* \(V_r\) and \(i_{Dmax}\) for \(10\si{\mu F}\) and \(150\si{\mu F}\) Capacitor Circuits
+#+attr_latex: :options bgcolor=codeBackground
+#+BEGIN_SRC python :results output text :exports both
+import math
+from recordtype import recordtype
+PeakRectifier = recordtype('PeakRectifier', ['vp', 'f', 'c', 'r'])
+
+vs = 5
+vd = 0.75
+
+capacitors = [10e-6, 150e-6]
+vrSim = [1.12335, 0.099591]
+idmaxSim = [0.0130566, 0.0327946]
+peakRectifier = PeakRectifier(
+    vp = vs - vd,
+    f = 60,
+    c = None,
+    r = 2e3)
+
+def rippleVoltage(pr: PeakRectifier) -> float:
+    return pr.vp / 2 / pr.f / pr.c / pr.r
+
+def diodeMaxCurrent(pr: PeakRectifier) -> float:
+    return (pr.vp / pr.r) * (1 + 2*math.pi*math.sqrt(pr.vp / 2 / rippleVoltage(pr)))
+
+for i, capacitor in enumerate(capacitors):
+    peakRectifier.c = capacitor
+    vr = rippleVoltage(peakRectifier)
+    idmax = diodeMaxCurrent(peakRectifier)
+    print((f"{peakRectifier.c}F:\n"
+           f"  Ripple Voltage (Theory) = {vr:.5}\n"
+           f"  Ripple Voltage (Sim) = {vrSim[i]:.5}\n"
+           f"  Ripple Voltage Error = {abs(vr - vrSim[i])*100/vrSim[i]:.3}%\n\n"
+           f"  Diode Current Max (Theory) = {idmax:.5}\n"
+           f"  Diode Current Max (Sim) = {idmaxSim[i]:.5}\n"
+           f"  Diode Max Current Error = {abs(idmax - idmaxSim[i])*100/idmaxSim[i]:.3}%\n"))
+#+END_SRC
+
 #+RESULTS:
-[[file:./figure/3_voltagepeak.png]]
+#+begin_example
+1e-05F:
+  Ripple Voltage (Theory) = 1.770833333333333
+  Ripple Voltage (Sim) = 1.12335
+  Ripple Voltage Error = 57.6%
 
-The difference is not constant. This is because as the current through
-the diode increase, the voltage drop across the diode increase
-logarithmically.
+  Diode Current Max (Theory) = 0.01675112988434097
+  Diode Current Max (Sim) = 0.0130566
+  Diode Max Current Error = 28.3%
 
-The difference reaches its max at every quarter cycle. From the plot
-above, the maximum observable difference is about \[5\si{V} -
-4.25\si{V} = 0.75\si{V}.\]
+0.00015F:
+  Ripple Voltage (Theory) = 0.11805555555555555
+  Ripple Voltage (Sim) = 0.099591
+  Ripple Voltage Error = 18.5%
 
+  Diode Current Max (Theory) = 0.058771757461519164
+  Diode Current Max (Sim) = 0.0327946
+  Diode Max Current Error = 79.2%
+#+end_example
 
-
+The high amount error is possibly due to our simulation components
+being less ideal than theoretical components.
 
 * COMMENT Notes
 ** Triode
