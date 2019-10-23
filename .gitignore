@@ -9,3 +9,4 @@ __pycache__/
 **.data
 **.plt
 clean
+.kra_autosave.kra

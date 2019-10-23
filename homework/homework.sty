@@ -8,7 +8,8 @@
 
 \usepackage{siunitx}
 \usepackage{titlesec}
-\usepackage[sfdefault]{opensans}
+\usepackage[default]{opensans}
+\usepackage{xcolor}
 
 % https://latex.org/forum/viewtopic.php?f=46&t=8144
 \newlength\dlf 
@@ -33,31 +34,25 @@
 \end{flushleft}\egroup
 }
 
-\titleformat{\section}{\scshape}{}{0pt}{\titlerule[0.4pt]\\}{}
+\titleformat{\section}{\scshape}{}{0pt}{\titlerule[0.4pt]\leavevmode \\}{}
 \titlespacing{\section}{0pt}{5pt}{0pt}
 
-\titleformat{\subsection}{\small\bfseries}{}{}{}
+\titleformat{\subsection}{\small\bfseries}{}{0pt}{}{}
 \titlespacing{\subsection}{0pt}{10pt}{0pt}
 
-\titleformat{\subsubsection}{\small\bfseries}{}{}{}
+\titleformat{\subsubsection}{\small\bfseries}{}{0pt}{}{}
 \titlespacing{\subsubsection}{0pt}{10pt}{5pt}
 
 \makeatother
 
-
-%% \setlength{\parindent}{0pt}
-%% \setlength{\parskip}{0pt}
-%% \setlength{\parsep}{0pt}
-%% \setlength{\lineskip}{0pt}
-
-\AtBeginDocument{%
-  \setlength\abovedisplayskip{2pt}%
-  \setlength\belowdisplayskip{2pt}%
-  \setlength\abovedisplayshortskip{2pt}%
-  \setlength\belowdisplayshortskip{5pt}%
-  \definecolor{codeBackground}{rgb}{0.95,0.95,0.95}
-  \definecolor{codeBackground2}{rgb}{0.8,0.8,0.8}
+\AtBeginDocument{
+  \setlength\abovedisplayskip{2pt}
+  \setlength\belowdisplayskip{2pt}
+  \setlength\abovedisplayshortskip{2pt}
+  \setlength\belowdisplayshortskip{5pt}
 }
+
+\definecolor{codeBackground}{rgb}{0.95,0.95,0.95}
 
 \linespread{1.2}
 \setlength{\mathindent}{0.25in}
