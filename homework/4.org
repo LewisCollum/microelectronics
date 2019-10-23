@@ -225,8 +225,22 @@
   #+attr_latex: :width 0.075\linewidth :placement [H]
   [[./figure/5.49_diagram.png]]
 
+  #+BEGIN_EXPORT latex
+  \[R = \frac{V_{D}}{i_{D}} = \frac{1\si{V}}{.18\si{mA}} = \boxed{5.6\si{k\Omega}}\]
+  #+END_EXPORT
 
+  Since \(V_{D} = V_{G}\), the PMOS is saturated.
+  #+BEGIN_EXPORT latex
+  \[i_{D} = \frac{1}{2} k_{p}'\frac{W}{L} \left(v_{SG} - \left|V_{t}\right|\right)^{2}\]
+  \[v_{SG} = V_{DD} - V_{D} = 0.8\si{V} \]
+  \[.18\si{mA} = \frac{1}{2} \cdot .1\si{mA/V^2} \cdot \frac{W}{.18\si{\mu m}} \cdot \left(0.8\si{V} - 0.5\si{V}\right)^{2}\] 
+  \[\to \boxed{W = 7.2\si{\mu m}}\]
+  #+END_EXPORT
 * 5.51
+  #+attr_latex: :width 0.5\linewidth :placement [H]
+  [[./figure/5.51_full.png]]
 * 5.56
+  #+attr_latex: :width 0.5\linewidth :placement [H]
+  [[./figure/5.56_full.png]]
 * 5.58
 
