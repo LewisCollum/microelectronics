@@ -1,0 +1,11 @@
+#+latex_class_options: [fleqn]
+#+latex_header: \usepackage{homework}
+
+#+title: EE341 Fall 2019 HW \jobname
+#+author: Lewis Collum
+#+date: Updated: \today
+[[https://github.com/LewisCollum/microelectronics][github.com/LewisCollum/microelectronics]]
+
+* 8.1
+  #+attr_latex: :width 0.5\linewidth :placement [H]
+  [[./figure/8.1_full.png]]
