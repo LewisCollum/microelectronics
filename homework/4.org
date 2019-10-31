@@ -1,0 +1,246 @@
+#+latex_class_options: [fleqn]
+#+latex_header: \usepackage{homework}
+
+#+title: EE341 Fall 2019 HW \jobname
+#+author: Lewis Collum
+#+date: Updated: \today
+[[https://github.com/LewisCollum/microelectronics][github.com/LewisCollum/microelectronics]]
+
+* 5.4
+  #+attr_latex: :width 0.3\linewidth
+  [[./figure/5.4.png]]
+
+** (a)
+   :PROPERTIES:
+   :CUSTOM_ID: sec:5.4.a
+   :END:
+
+   \[r_{DS} = \frac{1}{g_DS}\]
+   \[g_{DS} = k_{n} v_{OV}\]
+   \[\implies r_{DS} = \frac{1}{k_{n} v_{OV}}\]
+   \[\frac{r_{DS_{new}}}{r_{DS}} = \frac{1/(k_{n} 2v_{OV})}{1/(k_{n} v_{OV})} = \frac{1}{2}\]
+   
+#+BEGIN_EXPORT latex
+\boxed{\(r_{DS}\) is halved.}
+#+END_EXPORT  
+
+** (b)
+   The device width is proportional to the MOSFET transconductance
+   parameter, \(k_{n}\). So, \[k_{n_{new}} = 2k_{n}.\]
+   
+   As in [[#sec:5.4.a]], 
+   \[\frac{r_{DS_{new}}}{r_{DS}} = \frac{1/(2k_{n} v_{OV})}{1/(k_{n} v_{OV})} = \frac{1}{2}.\]
+
+#+BEGIN_EXPORT latex
+\boxed{\(r_{DS}\) is halved.}
+#+END_EXPORT
+
+** (c)
+   :PROPERTIES:
+   :CUSTOM_ID: sec:5.4.c
+   :END:
+   Since the aspect ratio stays the same, the MOSFET transconductance
+   parameter, stays the same. Therefore, 
+   
+#+BEGIN_EXPORT latex
+\boxed{\(r_{DS}\) stays the same.}
+#+END_EXPORT
+
+** (d)
+   As per [[#sec:5.4.c]], the aspect ratio stays the same and hence we will
+   disregard the width, \(W\), and length, \(L\), for the total effect on
+   \(r_{DS}\).
+
+   The thickness of the oxide layer will have an effect on
+   \(r_{DS}\). The MOSFET transconductance parameter is proportional to
+   the process transconductance parameter. The thickness of the oxide
+   layer is inversely proportional to the process transconductance
+   parameter. So, the MOSFET transconductance parameter, \(k_{n}\), is
+   inversely proportional to the thickness of the oxide layer,
+   \(t_{ox}\). We can relate this proportionality to \(r_{DS}\):
+
+   \[k_{n} \propto t_{ox}^{-1}\]
+   \[r_{DS} \propto k_{n}^{-1}\]
+   \[\implies r_{DS} \propto t_{ox}.\]
+
+   Since \(t_{ox}\) is halved, 
+#+BEGIN_EXPORT latex
+\boxed{\(r_{DS}\) is halved.}
+#+END_EXPORT
+
+* 5.8
+  #+attr_latex: :width 0.3\linewidth
+  [[./figure/5.8.png]]
+  
+  If \(V_{DS} \ll V_{OV}\), then,
+  \[i_{D} = k_{n} V_{OV} V_{DS}\]
+  
+  However, as \(V_{DS}\) rises,
+  \[i_{D} = k_{n} \left( V_{OV} - \frac{1}{2}V_{DS} \right) V_{DS}\]
+
+  where \(V_{OV} - \frac{1}{2}V_{DS}\) replaces \(V_{O}\) due to
+  tapering from an increase in holes at the drain.
+  
+  So,
+  \[r_{DS}=\left[ \frac{\delta i_{D}}{\delta v_{DS}} \right]^{-1}\]
+
+  becomes,
+#+BEGIN_EXPORT latex
+\begin{align*}
+  r_{DS}&=\left[ \frac{1}{\delta v_{DS}} \left( k_{n} \left( V_{OV} - \frac{1}{2}V_{DS} \right) V_{DS} \right)\right]^{-1} \\
+  &=\left[ k_{n} \left( V_{OV}\frac{1}{\delta v_{DS}} V_{DS} - \frac{1}{2}\frac{1}{\delta v_{DS}} V_{DS}^{2} \right)\right]^{-1} \\
+  &=\left[ k_{n} \left( V_{OV} - V_{DS} \right)\right]^{-1}
+\end{align*}
+#+END_EXPORT
+
+** case \(V_{DS} = 0\):
+#+BEGIN_EXPORT latex
+\boxed{r_{DS} = \frac{1}{k_{n} V_{OV}}}
+#+END_EXPORT
+
+** case \(V_{DS} = 0.2V_{OV}\):
+#+BEGIN_EXPORT latex
+\boxed{r_{DS} = \frac{1}{k_{n} \cdot 0.8V_{OV}}}
+#+END_EXPORT
+
+** case \(V_{DS} = 0.5V_{OV}\):
+#+BEGIN_EXPORT latex
+\boxed{r_{DS} = \frac{1}{k_{n} \cdot 0.5V_{OV}}}
+#+END_EXPORT
+
+** case \(V_{DS} = 0.8V_{OV}\):
+#+BEGIN_EXPORT latex
+\boxed{r_{DS} = \frac{1}{k_{n} \cdot 0.2V_{OV}}}
+#+END_EXPORT
+
+** case \(V_{DS} = V_{OV}\):
+#+BEGIN_EXPORT latex
+\boxed{r_{DS} = \infty}
+#+END_EXPORT
+
+* 5.24
+  #+attr_latex: :width 0.3\linewidth
+  [[./figure/5.24.png]]
+
+  #+attr_latex: :width 0.3\linewidth
+  [[./figure/5.24_diagram.png]]
+
+** (a)
+   Since \(V_{DS} = V_{OV}\), the NMOS is saturated and the current
+   through the transistor is, 
+   #+BEGIN_EXPORT latex
+   \[i = \frac{1}{2} k_{n} \left(v - \left| V_{t} \right| \right)^{2}\]
+   #+END_EXPORT
+
+   where \(i = i_{DS}\) and \(v = V_{GS} = V_{DS}\).
+   
+** (b)
+   #+BEGIN_EXPORT latex
+   \begin{align*}
+     r &= \left[ \frac{\delta i}{\delta v} \right]^{-1} \\
+     &= \frac{1}{2k'\frac{W}{L} \left(v - V_{t} \right)} \\
+     &= \frac{1}{k_{n}' \frac{W}{L} V_{OV}}
+   \end{align*}
+   #+END_EXPORT  
+
+* 5.28
+  #+attr_latex: :width 0.3\linewidth
+  [[./figure/5.28.png]]
+
+** graph \(i_{D}\) vs \(V_{G}\)
+   #+attr_latex: :width 0.4\linewidth :placement [H]
+   #+caption: Note that \(k_{n} = k_{n}'\frac{W}{L} = 1\si{mA}\) and represents the MOSFET transconductance parameter.
+   [[./figure/5.28_answer.png]]
+
+** case \(0\si{V} \le V_{G} \le V_{t} = 0.4\si{V}\)
+   The NMOS is off since \(V_{G} < V_{t}\). So,
+   \[i_{D} = 0\si{mA}\]
+
+** case \(V_{t}=0.4\si{V} < V_{G} \le V_{t}+V_{DS} = 1.4\si{V}\)
+   The NMOS is saturated since \(V_{DS} \ge V_{G} - V_{t}\).
+   \[i_{D} = \frac{1}{2} k_{n} V_{OV}^{2} = \frac{1}{2} \cdot 1\si{mA}
+   \cdot \left(V_{G} - 0.4\si{V}\right)^{2}\]
+
+** case \(V_{t}+V_{DS}=1.4\si{V} \le V_{G} \le 1.8\si{V}\)
+   The NMOS is operating in the triode region.
+   \[i_{D} = k_{n} \left(V_{OV} - \frac{1}{2}V_{DS}\right) V_{DS} =
+   1\si{mA}\cdot\left(V_{G} - 0.9\right)\]
+
+* 5.39
+  #+attr_latex: :width 0.3\linewidth :placement [H]
+  [[./figure/5.39.png]]
+  #+BEGIN_EXPORT latex
+  \[v_{GS} = -3\si{V}\]
+  \[v_{SG} = 3\si{V}\]
+
+  \[v_{DS} = -4\si{V}\]
+  \[v_{SD} = 4\si{V}\]
+
+  \[V_{t} = -0.8\si{V}\]
+  \[V_{A} = -40\si{V}\]
+  \[\lambda = \frac{1}{V_{A}} = -25\si{mV}\]
+
+  \begin{align*}
+    i_{D} &= \frac{1}{2} k_{p} (V_{GS}-V_{t})^{2} (1+\lambda v_{DS}) \\
+    3\si{mA} &= \frac{1}{2} k_{p} (-3 + 0.8)^{2} (1 + .025 \cdot 4) \\
+    \to k_{p} &= 1.13\si{mA/V^2}
+  \end{align*}
+  #+END_EXPORT
+* 5.44
+  #+attr_latex: :width 0.3\linewidth :placement [H]
+  [[./figure/5.44.png]]
+  #+attr_latex: :width 0.075\linewidth :placement [H]
+  [[./figure/5.44_diagram.png]]
+
+** find \(R_{D}\)
+   We know the voltage drop across \(R_{D}\) and the branch
+   current. So,
+   #+BEGIN_EXPORT latex
+   \[R_{D} = \frac{1\si{V} - 0.3\si{V}}{0.1\si{mA}} = \boxed{7\si{k\Omega}}\]
+   #+END_EXPORT
+
+** find \(R_{S}\)
+   We need to know the voltage at the NMOS source, \(V_{S}\), to figure out the
+   voltage drop across \(R_{S}\). 
+   
+   #+BEGIN_EXPORT latex
+   \[k_{n}=\mu_{n}C_{OX}\frac{W}{L}=0.4\si{mA/V^2}\cdot\frac{5\si{\mu m}}{0.4\si{\mu m}} = 5\si{mA/V^2}\]
+   #+END_EXPORT
+
+   Since \(V_{D} > V_{G}\), the NMOS is saturated. So,
+   #+BEGIN_EXPORT latex
+   \[i_{D} = \frac{1}{2} k_{n} v_{OV}^{2}\]
+   \[0.1\si{mA} = \frac{1}{2} \cdot 5\si{mA/V^2} \cdot v_{OV}^{2}\]
+   \[v_{OV} = 0.2\si{V}\]
+
+   \[V_{GS} = v_{OV} + V_{t} = 0.2 + 0.5 = 0.7\si{V}\]
+   \[V_{S} = -0.7\si{V}\]
+
+   \[R_{S} = \frac{V_{S} - (-1\si{V})}{i_{D}} = \frac{-0.7+1}{0.1\si{mA}}=\boxed{3\si{k\Omega}}\]
+   #+END_EXPORT
+
+* 5.49
+  #+attr_latex: :width 0.3\linewidth :placement [H]
+  [[./figure/5.49.png]]
+  #+attr_latex: :width 0.075\linewidth :placement [H]
+  [[./figure/5.49_diagram.png]]
+
+  #+BEGIN_EXPORT latex
+  \[R = \frac{V_{D}}{i_{D}} = \frac{1\si{V}}{.18\si{mA}} = \boxed{5.6\si{k\Omega}}\]
+  #+END_EXPORT
+
+  Since \(V_{D} = V_{G}\), the PMOS is saturated.
+  #+BEGIN_EXPORT latex
+  \[i_{D} = \frac{1}{2} k_{p}'\frac{W}{L} \left(v_{SG} - \left|V_{t}\right|\right)^{2}\]
+  \[v_{SG} = V_{DD} - V_{D} = 0.8\si{V} \]
+  \[.18\si{mA} = \frac{1}{2} \cdot .1\si{mA/V^2} \cdot \frac{W}{.18\si{\mu m}} \cdot \left(0.8\si{V} - 0.5\si{V}\right)^{2}\] 
+  \[\to \boxed{W = 7.2\si{\mu m}}\]
+  #+END_EXPORT
+* 5.51
+  #+attr_latex: :width 0.5\linewidth :placement [H]
+  [[./figure/5.51_full.png]]
+* 5.56
+  #+attr_latex: :width 0.5\linewidth :placement [H]
+  [[./figure/5.56_full.png]]
+* 5.58
+
