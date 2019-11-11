@@ -1,2 +1,8 @@
 #!/usr/bin/env bash
-cp .homework_template.org $1.org
+
+if [ ! -d $1 ]; then
+    mkdir $1
+    cp homeworkTemplate.org ./$1/$1.org
+else
+    echo "Homework $1 already exists."
+fi

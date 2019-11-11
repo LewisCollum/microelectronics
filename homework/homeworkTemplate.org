@@ -1,5 +1,5 @@
 #+latex_class_options: [fleqn]
-#+latex_header: \usepackage{homework}
+#+latex_header: \usepackage{../homework}
 
 #+title: EE341 Fall 2019 HW \jobname
 #+author: Lewis Collum

@@ -1,14 +1,13 @@
 #+latex_class_options: [fleqn, parskip=full]
-#+latex_header: \usepackage{homework}
+#+latex_header: \usepackage{../homework}
 
 #+title: EE341 Fall 2019 HW \jobname
 #+author: Lewis Collum
 #+date: Updated: \today
-[[https://github.com/LewisCollum/microelectronics][github.com/LewisCollum/microelectronics]]
 
 * 4.35
   #+attr_latex: :width \linewidth/2
-  [[./figure/questions/4.35.png]]
+  [[./questions/4.35.png]]
 
 *** Given
 #+attr_latex: :options bgcolor=codeBackground
@@ -109,11 +108,11 @@ print(table)
 
 * 4.37
   #+attr_latex: :width \linewidth/2
-  [[./figure/questions/4.37.png]]
+  [[./questions/4.37.png]]
 
 *** Circuit Design
     #+attr_latex: :width \linewidth/2
-    [[./figure/4.37_background.png]]
+    [[./4.37_background.png]]
 
 *** Given
 
@@ -181,10 +180,10 @@ api.printBoxedEquation("R", R, 4)
 
 * 4.40
   #+attr_latex: :width \linewidth/2
-  [[./figure/questions/4.40.png]]
+  [[./questions/4.40.png]]
 ** (A)
 *** Circuit Label Reference
-    [[./figure/4.40A.png]]
+    [[./4.40A.png]]
 
 *** Solve for \(I_{D1}\), \(I_{D2}\), \(V_A\), \(V_B\)
 #+attr_latex: :options bgcolor=codeBackground
@@ -231,7 +230,7 @@ api.printBoxedEquation("V_B", node['B'].voltage, 3)
 
 ** (B)
 *** Circuit Label Reference
-    [[./figure/4.40B.png]]
+    [[./4.40B.png]]
 
 *** Assume both diodes are conducting
 #+attr_latex: :options bgcolor=codeBackground
@@ -264,7 +263,7 @@ D1 is not conducting when reverse-biased, so the assumption that both
 diodes are conducting is wrong.
 
 *** Assume D1 is not conducting, but D2 is
-    [[./figure/4.40B2.png]]
+    [[./4.40B2.png]]
 
 
 *** Solve for \(V_A\)
@@ -294,7 +293,7 @@ Substituting \(V_B\) for \(V_A - 0.7\si{V}\) gives
 
 * 4.46
   #+attr_latex: :width 0.4\linewidth
-  [[./figure/questions/4.46.png]]
+  [[./questions/4.46.png]]
 
 ** (A)
 \[i_D(t) \approx I_D \left(1 + \frac{v_d}{V_T} \right) \]
@@ -310,7 +309,7 @@ Then,
 
 * 4.62
   #+attr_latex: :width 0.4\linewidth
-  [[./figure/questions/4.62.png]]
+  [[./questions/4.62.png]]
 
 ** (A) Find \(V_{Z0}\)
 \[-V_Z = 9.1\si{V}\]
@@ -331,10 +330,10 @@ Then,
 
 * E4.26
   #+attr_latex: :width 0.6\linewidth
-  [[./figure/questions/E4.26.png]]
+  [[./questions/E4.26.png]]
 
 ** (A) \(v_I \ge 5.7\si{V}\)
-   [[./figure/E4.26A.png]]
+   [[./E4.26A.png]]
    
    \[v_I = IR_A + 0.7\si{V} + 5\si{V} + IR_B = I(R_A + R_B) + 5.7\]
    \[I = \frac{v_{R_B}}{R_B}\]
@@ -348,7 +347,7 @@ Then,
    \[v_O = (v_I - 5.7)\frac{R_B}{R_A + R_B} + 5.7\]
    \[\boxed{v_O = \frac{1}{2}(v_I - 5.7) + 5.7}\]
 ** (B) \(v_I \le -5.7\si{V}\)
-   [[./figure/E4.26B.png]]
+   [[./E4.26B.png]]
    \[v_I = IR_A - 0.7\si{V} - 5\si{V} + IR_B = I(R_A + R_B) - 5.7\]
    \[I = \frac{v_{R_B}}{R_B}\]
    \[v_R_B = v_O + 0.7\si{V} + 5\si{V} = v_O + 5.7\si{V}\]
@@ -362,17 +361,17 @@ Then,
    \[\boxed{v_O = \frac{1}{2}(v_I + 5.7) - 5.7}\]
 
 ** (C) \(-5.7 \le v_I \le 5.7\)
-   [[./figure/E4.26C.png]]
+   [[./E4.26C.png]]
    \[\boxed{v_O = v_I}\]
 
 ** (Transfer Plot)
    #+attr_latex: :width 0.6\linewidth
-   [[./figure/E4.26Transfer.png]]
+   [[./E4.26Transfer.png]]
 * Spice
 
 ** (A)
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :exports code :results output raw :var file="figure/spice"
+#+BEGIN_SRC spice :exports code :results output raw :var file="spice"
 .title Diode I-V Characteristics
 .model diode d(IS=1.0e-16, N=1.1, temp=20)
 v1 1 0
@@ -387,11 +386,11 @@ gnuplot $file -i(v1) ylimit 0 2e-3
 #+END_SRC
 
 #+RESULTS:
-[[file:./figure/spice.png]]
+[[file:./spice.png]]
 
 *** Plot:
     #+attr_latex: :width 0.6\linewidth
-    [[./figure/spice_modified.png]]
+    [[./spice_modified.png]]
 
 ** (b) \(V_{DD} = 1\si{V}\)
 *** Given
@@ -581,7 +580,7 @@ print(table)
 
 ** COMMENT Test2
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :exports both :results output raw :var file="figure/spice2"
+#+BEGIN_SRC spice :exports both :results output raw :var file="spice2"
 Full-wave bridge rectifier and voltage regulator circuit (first line used for Title)
 vin 1 3 sin(0 10 60 0 0) ; (input source - comments after ;)
 
@@ -606,10 +605,10 @@ gnuplot $file V(3) V(2) V(1) V(4) V(5)
 #+END_SRC
 
 #+RESULTS:
-[[file:./figure/spice.png]]
+[[file:./spice.png]]
 ** COMMENT Test1
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :exports both :results output raw :var file="figure/temp"
+#+BEGIN_SRC spice :exports both :results output raw :var file="temp"
 .title dual rc ladder
 R1 int in 5k
 V1 in 0 dc 0 ac 1 PULSE (0 10 1u 1u 1u 1 1)
@@ -625,7 +624,7 @@ gnuplot $file v(out)
 #+END_SRC
 
 #+RESULTS:
-[[file:./figure/temp.png]]
+[[file:./temp.png]]
 * Appendix: Code
 #+attr_latex: :options bgcolor=codeBackground
 #+BEGIN_SRC python :results output :tangle ./api/homework_2.py

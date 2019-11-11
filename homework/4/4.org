@@ -1,14 +1,13 @@
 #+latex_class_options: [fleqn]
-#+latex_header: \usepackage{homework}
+#+latex_header: \usepackage{../homework}
 
 #+title: EE341 Fall 2019 HW \jobname
 #+author: Lewis Collum
 #+date: Updated: \today
-[[https://github.com/LewisCollum/microelectronics][github.com/LewisCollum/microelectronics]]
 
 * 5.4
   #+attr_latex: :width 0.3\linewidth
-  [[./figure/5.4.png]]
+  [[./5.4.png]]
 
 ** (a)
    :PROPERTIES:
@@ -70,7 +69,7 @@
 
 * 5.8
   #+attr_latex: :width 0.3\linewidth
-  [[./figure/5.8.png]]
+  [[./5.8.png]]
   
   If \(V_{DS} \ll V_{OV}\), then,
   \[i_{D} = k_{n} V_{OV} V_{DS}\]
@@ -120,10 +119,10 @@
 
 * 5.24
   #+attr_latex: :width 0.3\linewidth
-  [[./figure/5.24.png]]
+  [[./5.24.png]]
 
   #+attr_latex: :width 0.3\linewidth
-  [[./figure/5.24_diagram.png]]
+  [[./5.24_diagram.png]]
 
 ** (a)
    Since \(V_{DS} = V_{OV}\), the NMOS is saturated and the current
@@ -145,12 +144,12 @@
 
 * 5.28
   #+attr_latex: :width 0.3\linewidth
-  [[./figure/5.28.png]]
+  [[./5.28.png]]
 
 ** graph \(i_{D}\) vs \(V_{G}\)
    #+attr_latex: :width 0.4\linewidth :placement [H]
    #+caption: Note that \(k_{n} = k_{n}'\frac{W}{L} = 1\si{mA}\) and represents the MOSFET transconductance parameter.
-   [[./figure/5.28_answer.png]]
+   [[./5.28_answer.png]]
 
 ** case \(0\si{V} \le V_{G} \le V_{t} = 0.4\si{V}\)
    The NMOS is off since \(V_{G} < V_{t}\). So,
@@ -168,7 +167,7 @@
 
 * 5.39
   #+attr_latex: :width 0.3\linewidth :placement [H]
-  [[./figure/5.39.png]]
+  [[./5.39.png]]
   #+BEGIN_EXPORT latex
   \[v_{GS} = -3\si{V}\]
   \[v_{SG} = 3\si{V}\]
@@ -188,9 +187,9 @@
   #+END_EXPORT
 * 5.44
   #+attr_latex: :width 0.3\linewidth :placement [H]
-  [[./figure/5.44.png]]
+  [[./5.44.png]]
   #+attr_latex: :width 0.075\linewidth :placement [H]
-  [[./figure/5.44_diagram.png]]
+  [[./5.44_diagram.png]]
 
 ** find \(R_{D}\)
    We know the voltage drop across \(R_{D}\) and the branch
@@ -221,9 +220,9 @@
 
 * 5.49
   #+attr_latex: :width 0.3\linewidth :placement [H]
-  [[./figure/5.49.png]]
+  [[./5.49.png]]
   #+attr_latex: :width 0.075\linewidth :placement [H]
-  [[./figure/5.49_diagram.png]]
+  [[./5.49_diagram.png]]
 
   #+BEGIN_EXPORT latex
   \[R = \frac{V_{D}}{i_{D}} = \frac{1\si{V}}{.18\si{mA}} = \boxed{5.6\si{k\Omega}}\]
@@ -238,9 +237,9 @@
   #+END_EXPORT
 * 5.51
   #+attr_latex: :width 0.5\linewidth :placement [H]
-  [[./figure/5.51_full.png]]
+  [[./5.51_full.png]]
 * 5.56
   #+attr_latex: :width 0.5\linewidth :placement [H]
-  [[./figure/5.56_full.png]]
+  [[./5.56_full.png]]
 * 5.58
 

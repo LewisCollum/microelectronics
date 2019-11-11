@@ -1,17 +1,14 @@
 #+property: header-args:spice :cache yes :noweb yes :exports both :results output raw
 #+latex_class_options: [fleqn]
-#+latex_header: \usepackage{homework}
-#+export_exclude_tags: noexport
-
+#+latex_header: \usepackage{../homework}
 
 #+title: EE341 Fall 2019 HW \jobname
 #+author: Lewis Collum
 #+date: Updated: \today
-[[https://github.com/LewisCollum/microelectronics][github.com/LewisCollum/microelectronics]]
 
 * Spice Layout
   #+attr_latex: :width 0.3\linewidth
-  [[./figure/3_spiceLayout.png]]
+  [[./3_spiceLayout.png]]
    
 ** circuit spice                                                   :noexport:
 #+name: circuit
@@ -30,7 +27,7 @@ r1 out 0 2k
 * (A) \(v_S\) vs \(v_O\)
 ** Voltage Source and Output Comparison Plot
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :var file="figure/3_voltage"
+#+BEGIN_SRC spice :var file="3_voltage"
 .title AC Retifier Voltage Source and Output Comparison
 <<circuit>>
 .control
@@ -42,11 +39,11 @@ gnuplot $file v(upper) v(out)
 
 #+attr_latex: :width 0.5\linewidth :placement [H]
 #+RESULTS[756fb51ac0075630cf9170c576dc3ee61ff1fb83]:
-[[file:./figure/3_voltage.png]]
+[[file:./3_voltage.png]]
 
 ** Current Through Diodes Plot
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :var file="figure/3_currentdiodes"
+#+BEGIN_SRC spice :var file="3_currentdiodes"
 .title AC Retifier Diode Current
 <<circuit>>
 .control
@@ -59,11 +56,11 @@ gnuplot $file @d1[id] @d2[id]
 
 #+attr_latex: :width 0.5\linewidth :placement [H]
 #+RESULTS:
-[[file:./figure/3_currentdiodes.png]]
+[[file:./3_currentdiodes.png]]
 
 ** Current Through the Resistor Plot
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :var file="figure/3_currentresistor"
+#+BEGIN_SRC spice :var file="3_currentresistor"
 .title AC Rectifier Resistor Current
 <<circuit>>
 .control
@@ -76,7 +73,7 @@ gnuplot $file @r1[i]
 
 #+attr_latex: :width 0.5\linewidth :placement [H]
 #+RESULTS:
-[[file:./figure/3_currentresistor.png]]
+[[file:./3_currentresistor.png]]
 
 ** Analysis of the Voltage Difference between \(v_S\) and \(v_O\)
    The difference between the source and output voltage is not constant
@@ -87,7 +84,7 @@ gnuplot $file @r1[i]
    Using spice to simulate, we can plot the transfer function as well as the
    difference between the source and output voltages.
 
-#+BEGIN_SRC spice :var file="figure/3_transfer" :exports results
+#+BEGIN_SRC spice :var file="3_transfer" :exports results
 .title Output Voltage vs Source Voltage Transfer
 .model diode d(IS=10e-15, n=1.1)
 v1 upper 0 dc 0
@@ -104,9 +101,9 @@ gnuplot $file v(out) xlabel 'Source (V)' ylabel 'Output (V)'
 #+caption: Demonstrates a non-constant voltage drop across the diode in relation to the source voltage.
 #+attr_latex: :width 0.5\linewidth :placement [H]
 #+RESULTS[013319306c90f159b1a544e6bfd19176d1889bf6]:
-[[file:./figure/3_transfer.png]]
+[[file:./3_transfer.png]]
 
-#+BEGIN_SRC spice :var file="figure/3_difference" :exports results
+#+BEGIN_SRC spice :var file="3_difference" :exports results
 .title Difference between Source Voltage and Output Voltage
 <<circuit>>
 .control
@@ -122,7 +119,7 @@ gnuplot $file difference ylabel 'Difference (V)'
 #+caption: Demonstrates a non-constant difference between the source voltage and the output voltage over time. The difference reaches its max at every quarter cycle, with the maximum difference being about \(0.75\si{V}\).
 #+attr_latex: :width 0.5\linewidth :placement [H]
 #+RESULTS[a4e2369c71658cfd3fc4c2076e7e9919bef316f3]:
-[[file:./figure/3_difference.png]]
+[[file:./3_difference.png]]
 
 * (B) PIV Estimation
 ** Theoretical PIV
@@ -139,7 +136,7 @@ gnuplot $file difference ylabel 'Difference (V)'
 ** Graphical PIV 
 
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :var file="figure/3_maxdifference"
+#+BEGIN_SRC spice :var file="3_maxdifference"
 .title Total Difference between Source and Output Voltages
 <<circuit>>
 .control
@@ -155,16 +152,16 @@ gnuplot $file v(upper) - v(out)
 
 #+attr_latex: :width 0.5\linewidth :placement [H] :placement [H]
 #+RESULTS[222e968f2c9805b63295c6c8b53fe44764d8d0ff]:
-[[file:./figure/3_maxdifference.png]]
+[[file:./3_maxdifference.png]]
 
 The PIV can be found, in simulation, by getting the max of the
 absolute difference between \(v_S\) and \(v_O\). In this case, the
 simulation reports that the maximum absolute difference is
-\input{./figure/3_maxdifference}.
+\input{./3_maxdifference}.
 
 ** Error
 #+name: getValueFromFile
-#+BEGIN_SRC python :var filename="./figure/3_maxdifference" :exports none :results output raw
+#+BEGIN_SRC python :var filename="./3_maxdifference" :exports none :results output raw
 with open(filename) as f:
     print(f.readline().rstrip())
 #+END_SRC   
@@ -172,7 +169,7 @@ with open(filename) as f:
 \[Error = \frac{|graphical - theoretical|}{theoretical}\]
 
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC python :exports both :results output raw :var graphical=getValueFromFile(file="./figure/3_maxdifference") :var theoretical=getValueFromFile(file="./figure/3_difference") :cache yes
+#+BEGIN_SRC python :exports both :results output raw :var graphical=getValueFromFile(file="./3_maxdifference") :var theoretical=getValueFromFile(file="./3_difference") :cache yes
 theoretical = 2*5 - float(theoretical)
 graphical = float(graphical)
 print(f"Error = {(graphical - theoretical)*100/theoretical:.3}%")
@@ -202,7 +199,7 @@ r1 out 0 2k
 
 ** Voltage Source and Output Comparison Plot
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :var file="figure/3_voltagewithcapacitor1"
+#+BEGIN_SRC spice :var file="3_voltagewithcapacitor1"
 .title AC Retifier Voltage Source and Output Comparison
 <<circuitWithCapacitor>>
 .control
@@ -216,11 +213,11 @@ gnuplot $file v(upper) v(out)
 
 #+attr_latex: :width 0.5\linewidth :placement [H]
 #+RESULTS[9c1fdc9afd42af27fef23bca08d66bdc636af215]:
-[[file:./figure/3_voltagewithcapacitor1.png]]
+[[file:./3_voltagewithcapacitor1.png]]
 
 ** Current Through Diodes Plot
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :var file="figure/3_currentdiodeswithcapacitor1"
+#+BEGIN_SRC spice :var file="3_currentdiodeswithcapacitor1"
 .title AC Retifier Diode Current
 <<circuitWithCapacitor>>
 .control
@@ -235,11 +232,11 @@ gnuplot $file @d1[id] @d2[id]
 
 #+attr_latex: :width 0.5\linewidth :placement [H]
 #+RESULTS[05eb5fcdf2ecf061d488d231c6c12f9b2aff6dc1]:
-[[file:./figure/3_currentdiodeswithcapacitor1.png]]
+[[file:./3_currentdiodeswithcapacitor1.png]]
 
 ** Current Through the Resistor Plot
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :var file="figure/3_currentresistorwithcapacitor1"
+#+BEGIN_SRC spice :var file="3_currentresistorwithcapacitor1"
 .title AC Rectifier Resistor Current
 <<circuitWithCapacitor>>
 .control
@@ -252,7 +249,7 @@ gnuplot $file @r1[i]
 
 #+attr_latex: :width 0.5\linewidth :placement [H]
 #+RESULTS[9d188d78ce1f32a18c2d76084cb6269c101cad47]:
-[[file:./figure/3_currentresistorwithcapacitor1.png]]
+[[file:./3_currentresistorwithcapacitor1.png]]
 * \(150\si{\mu F}\) Capacitor across R
 ** circuit spice                                                   :noexport:
 #+name: circuitWithCapacitor2
@@ -271,7 +268,7 @@ r1 out 0 2k
 
 ** Voltage Source and Output Comparison Plot
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :var file="figure/3_voltagewithcapacitor2"
+#+BEGIN_SRC spice :var file="3_voltagewithcapacitor2"
 .title AC Retifier Voltage Source and Output Comparison
 <<circuitWithCapacitor2>>
 .control
@@ -285,11 +282,11 @@ gnuplot $file v(upper) v(out)
 
 #+attr_latex: :width 0.5\linewidth :placement [H]
 #+RESULTS[8ad29b42681b523a7023b5c7a30b6a01dd4325e4]:
-[[file:./figure/3_voltagewithcapacitor2.png]]
+[[file:./3_voltagewithcapacitor2.png]]
 
 ** Current Through Diodes Plot
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :var file="figure/3_currentdiodeswithcapacitor2"
+#+BEGIN_SRC spice :var file="3_currentdiodeswithcapacitor2"
 .title AC Retifier Diode Current
 <<circuitWithCapacitor2>>
 .control
@@ -304,11 +301,11 @@ gnuplot $file @d1[id] @d2[id]
 
 #+attr_latex: :width 0.5\linewidth :placement [H]
 #+RESULTS[6ba6c1a716e7612c53ad855b13f0da54cd799a02]:
-[[file:./figure/3_currentdiodeswithcapacitor2.png]]
+[[file:./3_currentdiodeswithcapacitor2.png]]
 
 ** Current Through the Resistor Plot
 #+attr_latex: :options bgcolor=codeBackground
-#+BEGIN_SRC spice :var file="figure/3_currentresistorwithcapacitor2"
+#+BEGIN_SRC spice :var file="3_currentresistorwithcapacitor2"
 .title AC Rectifier Resistor Current
 <<circuitWithCapacitor2>>
 .control
@@ -321,7 +318,7 @@ gnuplot $file @r1[i]
 
 #+attr_latex: :width 0.5\linewidth :placement [H]
 #+RESULTS[a39fc6d780fd25a52f080b4e3ec790a5c8df6e0e]:
-[[file:./figure/3_currentresistorwithcapacitor2.png]]
+[[file:./3_currentresistorwithcapacitor2.png]]
 * \(V_r\) and \(i_{Dmax}\) for \(10\si{\mu F}\) and \(150\si{\mu F}\) Capacitor Circuits
 #+attr_latex: :options bgcolor=codeBackground
 #+BEGIN_SRC python :results output text :exports both
