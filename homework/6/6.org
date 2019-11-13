@@ -1,24 +1,39 @@
-#+latex_class_options: [fleqn, twocolumn]
+#+latex_class_options: [fleqn]
 #+latex_header: \usepackage{../homework}
-#+bind: org-latex-image-default-width "\\linewidth"
+#+bind: org-latex-image-default-width "0.5\\linewidth"
 #+bind: org-latex-default-figure-position "H"
-#+latex_header: \setlength{\columnseprule}{0.2pt}
+# #+latex_header: \setlength{\columnseprule}{0.2pt}
 
 #+title: EE341 Fall 2019 HW \jobname
 #+author: Lewis Collum
 #+date: Updated: \today
 
 * 7.30
-  [[./7.30_question.png]] 
+  # [[./7.30_question.png]] 
   [[./7.30_answer.png]]
 
 * 7.33
-  [[./7.33_question.png]]
+  # [[./7.33_question.png]]
   [[./7.33_answer_a.png]]
   [[./7.33_answer_b.png]]
   [[./7.33_answer_c.png]]
   [[./7.33_answer_d.png]]
 
 * 7.121
-  [[./7.121_question.png]]
+  # [[./7.121_question.png]]
+  # [[./7.121_diagram.png]]
+  [[./7.121_a.png]]
+  [[./7.121_b.png]]
+  [[./7.121_c.png]]
+  [[./7.121_d.png]]
   
+* 8.19
+  [[file:8.19_schematics.png]]
+  [[file:8.19_left.png]]
+  [[file:8.19_right.png]]
+  [[file:8.19_total.png]]
+  [[file:8.19_totalSimplified.png]]
+  [[file:8.19_q2Resistance.png]]
+  [[file:8.19_q1Gain.png]]
+
+* 8.30
