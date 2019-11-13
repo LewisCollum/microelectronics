@@ -2,26 +2,21 @@
 #+latex_header: \usepackage{../homework}
 #+bind: org-latex-image-default-width "0.5\\linewidth"
 #+bind: org-latex-default-figure-position "H"
-# #+latex_header: \setlength{\columnseprule}{0.2pt}
 
 #+title: EE341 Fall 2019 HW \jobname
 #+author: Lewis Collum
 #+date: Updated: \today
 
 * 7.30
-  # [[./7.30_question.png]] 
   [[./7.30_answer.png]]
 
 * 7.33
-  # [[./7.33_question.png]]
   [[./7.33_answer_a.png]]
   [[./7.33_answer_b.png]]
   [[./7.33_answer_c.png]]
   [[./7.33_answer_d.png]]
 
 * 7.121
-  # [[./7.121_question.png]]
-  # [[./7.121_diagram.png]]
   [[./7.121_a.png]]
   [[./7.121_b.png]]
   [[./7.121_c.png]]
@@ -37,3 +32,9 @@
   [[file:8.19_q1Gain.png]]
 
 * 8.30
+  [[file:8.30.png]]
+* 8.42
+  [[file:8.42_1.png]]
+  [[file:8.42_2.png]]
+* 8.44
+  [[file:8.44.png]]
