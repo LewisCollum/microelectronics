@@ -1,0 +1,101 @@
+#+latex_class_options: [fleqn]
+#+latex_header: \usepackage{../homework}
+#+bind: org-latex-minted-options (("bgcolor" "codeBackground"))
+#+bind: org-latex-default-figure-position "H"
+#+bind: org-latex-image-default-width ".6\\linewidth"
+
+#+title: EE341 Fall 2019 HW \jobname
+#+author: Lewis Collum
+#+date: Updated: \today
+
+* Inverter Subcircuit 
+#+BEGIN_SRC spice :tangle inverter.cir
+.subckt inverter vDD input output
+mSource output input vDD sourceBody source
++ L = 1u
++ W = 16u
+
+mSink output input 0 sinkBody sink
++ L = 1u
++ W = 8u
+.ends
+
+
+.model source pmos
++ kp = 0.08m
++ vto = -1
++ lambda = 0.2
++ cbd = 100fF
++ cbs = 100fF
++ tox = 50nm 
+
+.model sink nmos
++ kp = 0.18m
++ vto = 1
++ lambda = 0.2
++ cbd = 100fF
++ cbs = 100fF
++ tox = 50nm 
+#+END_SRC
+
+* (1) Transfer Function of a Single Inverter
+#+BEGIN_SRC spice :exports both :results output raw :var file="inverter_transfer" :eval no-export
+.title CMOS Inverter (Transfer Function)
+.include inverter.cir
+
+vDD vDD 0 DC 3
+vIn input 0
+xInverter vDD input output inverter
+
+.control
+dc vIn 0 3 0.001
+set gnuplot_terminal=png/quit
+gnuplot $file v(output) vs v(input) ylabel "Output (V)" xlabel "Input (V)"
+.endc
+.end
+#+END_SRC
+
+#+RESULTS:
+[[file:./inverter_transfer.png]]
+
+** Region Characteristics
+   - \(v_{in} < 1\):
+     - NMOS is *off*.
+     - PMOS is *on*.
+     - \(v_{out} = v_{DD}\)
+     - Sources current
+   - \(2 < v_{in}\):
+     - NMOS is *on*
+     - PMOS is *off*
+     - \(v_{out} = 0\)
+     - Sinks current
+   - \(1 < v_{in} < 2\):
+     - NMOS \(v_{gs} < v_{nt}\)
+     - PMOS \(v_{sg} < v_{pt}\)
+
+* (2) Three Cascade Inverters with a Load Capacitor
+#+BEGIN_SRC spice :exports code :results silent :var file="propogation_delay" :eval no-export
+.title Propogation Delay at Inverter B Output
+.include inverter.cir
+
+vDD vDD 0 DC 3
+vIn input 0 pulse 0 3 0 0.05ns 0.05ns 0.5ns 1ns
+
+xA vDD input aOutput inverter
+xB vDD aOutput bOutput inverter
+xC vDD bOutput output inverter
+
+cLoad output 0
+
+.control
+tran 0.001ns 1.9ns 0.9ns
+set gnuplot_terminal=png/quit
+let millis = time*1e9
+setscale millis
+gnuplot $file v(input) v(bOutput) xlabel "Time (ms)" ylabel "(V)"
+.endc
+#+END_SRC
+
+[[file:./propogation_delay_overlayed.png]]
+
+\(t_{pHL} = t_{pLH} = t_{pd} \approx 0.12\si{ms}\)

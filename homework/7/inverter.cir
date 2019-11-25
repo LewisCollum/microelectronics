@@ -1,0 +1,26 @@
+.subckt inverter vDD input output
+mSource output input vDD sourceBody source
++ L = 1u
++ W = 16u
+
+mSink output input 0 sinkBody sink
++ L = 1u
++ W = 8u
+.ends
+
+
+.model source pmos
++ kp = 0.08m
++ vto = -1
++ lambda = 0.2
++ cbd = 100fF
++ cbs = 100fF
++ tox = 50nm 
+
+.model sink nmos
++ kp = 0.18m
++ vto = 1
++ lambda = 0.2
++ cbd = 100fF
++ cbs = 100fF
++ tox = 50nm
