@@ -2,7 +2,8 @@
 #+latex_header: \usepackage{../homework}
 #+bind: org-latex-minted-options (("bgcolor" "codeBackground"))
 #+bind: org-latex-default-figure-position "H"
-#+bind: org-latex-image-default-width ".6\\linewidth"
+#+bind: org-latex-image-default-width ".5\\linewidth"
+#+property: header-args :eval no-export :exports both
 
 #+title: EE341 Fall 2019 HW \jobname
 #+author: Lewis Collum
@@ -11,13 +12,15 @@
 * Inverter Subcircuit 
 #+BEGIN_SRC spice :tangle inverter.cir
 .subckt inverter vDD input output
+.param sourceLength=1u sourceWidth=16u sinkLength=1u sinkWidth=8u
+
 mSource output input vDD sourceBody source
-+ L = 1u
-+ W = 16u
++ L = sourceLength
++ W = sourceWidth
 
 mSink output input 0 sinkBody sink
-+ L = 1u
-+ W = 8u
++ L = sinkLength
++ W = sinkWidth
 .ends
 
 
@@ -39,7 +42,10 @@ mSink output input 0 sinkBody sink
 #+END_SRC
 
 * (1) Transfer Function of a Single Inverter
-#+BEGIN_SRC spice :exports both :results output raw :var file="inverter_transfer" :eval no-export
+  :PROPERTIES:
+  :header-args: :results output raw :exports both
+  :END:
+#+BEGIN_SRC spice :var file="inverter_transfer"
 .title CMOS Inverter (Transfer Function)
 .include inverter.cir
 
@@ -74,7 +80,10 @@ gnuplot $file v(output) vs v(input) ylabel "Output (V)" xlabel "Input (V)"
      - PMOS \(v_{sg} < v_{pt}\)
 
 * (2) Three Cascade Inverters with a Load Capacitor
-#+BEGIN_SRC spice :exports code :results silent :var file="propogation_delay" :eval no-export
+  :PROPERTIES:
+  :header-args: :results output raw
+  :END:
+#+BEGIN_SRC spice :var file="propogation_delay"
 .title Propogation Delay at Inverter B Output
 .include inverter.cir
 
@@ -85,17 +94,205 @@ xA vDD input aOutput inverter
 xB vDD aOutput bOutput inverter
 xC vDD bOutput output inverter
 
-cLoad output 0
+cLoad output 0 20f
 
 .control
 tran 0.001ns 1.9ns 0.9ns
 set gnuplot_terminal=png/quit
 let millis = time*1e9
 setscale millis
-gnuplot $file v(input) v(bOutput) xlabel "Time (ms)" ylabel "(V)"
+gnuplot $file v(input) v(bOutput) xlabel "Time (ns)" ylabel "(V)"
 .endc
 #+END_SRC
 
+#+RESULTS:
+[[file:./propogation_delay.png]]
+
 [[file:./propogation_delay_overlayed.png]]
 
-\(t_{pHL} = t_{pLH} = t_{pd} \approx 0.12\si{ms}\)
+\(t_{pHL} = t_{pLH} = t_{pd} \approx 0.12\si{ns}\)
+
+* (3) Inverter B Fan-Outs
+  For this question I used ~meas~ to provide accurate timestamps for
+  the input and output crossing 1.5V. I then use these timestamps to
+  calculate the propogation delay.
+  #+BEGIN_SRC spice :var file="fanout_15" :results output silent
+.title Inverter B Fanout
+.include inverter.cir
+vDD vDD 0 DC 3
+vIn input 0 pulse 0 3 0 0.05ns 0.05ns 0.5ns 1ns
+
+xA vDD input aOutput inverter
+xB vDD aOutput bOutput inverter
+xFanOut vDD bOutput inverterWithOutputCapacitor m=15
+
+.control
+tran 0.001ns 1.9ns 0.9ns
+
+meas tran output_tplh WHEN v(bOutput)=1.5 CROSS=1
+meas tran input_tplh WHEN v(input)=1.5 CROSS=1
+meas tran output_tphl WHEN v(bOutput)=1.5 CROSS=2
+meas tran input_tphl WHEN v(input)=1.5 CROSS=2
+echo "$&output_tplh, $&input_tplh, $&output_tphl, $&input_tphl" > fanout_15.csv
+
+set gnuplot_terminal=png/quit
+let nanos = time*1e9
+setscale nanos
+gnuplot $file v(input) v(bOutput) xlabel "Time (ns)" ylabel "(V)"
+.endc
+
+.subckt inverterWithOutputCapacitor vDD input 
+xInverter vDD input capacitorIn inverter
+cOutput capacitorIn 0
+.ends
+  #+END_SRC
+  
+** Table
+   #+BEGIN_SRC python :results output latex :exports results :eval no
+import pandas
+data = pandas.read_csv("fanout_table.csv", index_col = 0) 
+for index, row in data.iterrows():
+    row[4] = row[0] - row[1]
+    row[5] = row[2] - row[3]
+    row[6] = (row[5] + row[4])/2
+print(data.to_latex(float_format="{:0.4}".format))
+   #+END_SRC
+
+   #+RESULTS:
+   #+BEGIN_EXPORT latex
+   \begin{center}
+     \begin{tabular}{lrrrrrrr}
+       \toprule
+       {} &   output t_{plh} &   input t_{plh} &   output t_{phl} &   input t_{phl} &      t_{plh} &      t_{phl} &        t_p [\si{ns}]\\
+       N  &               &              &               &              &           &           &           \\
+       \midrule
+       1  &     1.146e-09 &    1.025e-09 &     1.698e-09 &    1.575e-09 & 1.207e-10 & 1.234e-10 & 1.221e-10 \\
+       5  &     1.173e-09 &    1.025e-09 &     1.722e-09 &    1.575e-09 & 1.479e-10 & 1.474e-10 & 1.476e-10 \\
+       10 &       1.2e-09 &    1.025e-09 &     1.748e-09 &    1.575e-09 & 1.752e-10 & 1.726e-10 & 1.739e-10 \\
+       15 &     1.219e-09 &    1.025e-09 &     1.768e-09 &    1.575e-09 &  1.94e-10 & 1.926e-10 & 1.933e-10 \\
+       \bottomrule
+     \end{tabular}
+   \end{center}
+
+   #+END_EXPORT
+
+   The propogation delay increases as =N= increases. This is because
+   fanout increases the capacitative load on inverter B; capacitative
+   loads take time to charge and that time is reflected in the
+   propogation delay of inverter B. This effect can be seen between
+   the =N=1= case and the =N=15= case below.
+
+   #+caption: Case N=1. 
+   [[./fanout_1.png]] 
+   
+   #+caption: Case N=15.
+   [[./fanout_15.png]]
+   
+* (4) Fix N=15
+  #+BEGIN_SRC spice :var file="fanout_nfix_size" :results output raw :exports code
+.title Fix N=15
+.include inverter.cir
+vDD vDD 0 DC 3
+vIn input 0 pulse 0 3 0 0.05ns 0.05ns 0.5ns 1ns
+
+xA vDD input aOutput inverter
+xB vDD aOutput bOutput inverter sourceWidth=64u sinkWidth=48u
+xFanOut vDD bOutput inverterWithOutputCapacitor m=15
+
+.control
+tran 0.001ns 1.9ns 0.9ns
+
+meas tran output_tplh WHEN v(bOutput)=1.5 CROSS=1
+meas tran input_tplh WHEN v(input)=1.5 CROSS=1
+meas tran output_tphl WHEN v(bOutput)=1.5 CROSS=2
+meas tran input_tphl WHEN v(input)=1.5 CROSS=2
+
+let propDelay = ((output_tplh - input_tplh) + (output_tphl - input_tphl))/2
+echo $&propDelay > out.raw
+
+set gnuplot_terminal=png/quit
+let nanos = time*1e9
+setscale nanos
+gnuplot $file v(input) v(bOutput) xlabel "Time (ns)" ylabel "(V)"
+.endc
+
+.subckt inverterWithOutputCapacitor vDD input 
+xInverter vDD input capacitorIn inverter
+cOutput capacitorIn 0
+.ends
+  #+END_SRC
+
+  #+RESULTS:
+  [[file:./fanout_nfix_size.png]]
+
+  When \(v_{DD} = 4\si{V}\), the propogation delay is \(0.127
+  \si{ns}\). This method works since it makes the output voltage reach
+  its peak at =4V= whereas the input peaks at =3V=. This makes the
+  rising and falling output voltage slopes steeper and hence reduces
+  the propogation delay.
+
+  #+caption: \(v_{DD} = 4\si{V}\).
+  [[./fanout_nfix_vdd4.png]]
+
+  With the PMOS width set to =64u=, and the NMOS width set to =48u=,
+  the propogation delay is \(.139 \si{ns}\). This method works since
+  it allows more current to be sourced by inverter B when it is on and
+  more current to be drained when it is off. More current allows the
+  capacitative load to charge and discharge quicker, making the rise
+  and fall times short for interver B.
+
+  [[./fanout_nfix_size.png]]
+
+* COMMENT Scrap
+  #+BEGIN_SRC spice
+.title SCRAP
+
+set wr_vecnames
+set numdgt=2
+set filetype=ascii
+wrdata rawspice.raw <vector>
+  
+  #+END_SRC
+
+  #+BEGIN_SRC spice :var file="3_inverter_fanout" :results output raw
+.title Inverter B Fanout
+.include inverter.cir
+
+vDD vDD 0 DC 3
+vIn input 0 pulse 0 3 0 0.05ns 0.05ns 0.5ns 1ns
+
+r1 bOutput 0 1k
+xA vDD input aOutput inverter
+xB vDD aOutput bOutput inverter
+xFanOut vDD bOutput inverterWithOutputCapacitor m=20
+
+
+.control
+tran 0.001ns 1.9ns 0.9ns
+echo "N, output_tplh, input_tplh, tplh, output_tphl, input_tphl, tphl, tp" > fanout.csv
+let N = 1
+
+while N le 15
+alter xFanOut m=N
+meas dc output_tplh WHEN v(bOutput)=1.5 CROSS=1
+meas dc input_tplh WHEN v(input)=1.5 CROSS=1
+meas dc output_tphl WHEN v(bOutput)=1.5 CROSS=2
+meas dc input_tphl WHEN v(input)=1.5 CROSS=2
+echo "1, $&output_tplh, $&input_tplh,, $&output_tphl, $&input_tphl,," >> fanout.csv
+let N = N + 1
+end
+
+set gnuplot_terminal=png/quit
+let millis = time*1e9
+setscale millis
+gnuplot $file v(input) v(bOutput) xlabel "Time (ns)" ylabel "(V)"
+.endc
+
+.subckt inverterWithOutputCapacitor vDD input 
+xInverter vDD input capacitorIn inverter
+cOutput capacitorIn 0
+.ends
+  #+END_SRC
+  
+  #+RESULTS:
+  [[file:./3_inverter_fanout.png]]

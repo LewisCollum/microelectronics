@@ -1,11 +1,13 @@
 .subckt inverter vDD input output
+.param sourceLength=1u sourceWidth=16u sinkLength=1u sinkWidth=8u
+
 mSource output input vDD sourceBody source
-+ L = 1u
-+ W = 16u
++ L = sourceLength
++ W = sourceWidth
 
 mSink output input 0 sinkBody sink
-+ L = 1u
-+ W = 8u
++ L = sinkLength
++ W = sinkWidth
 .ends
 
 
