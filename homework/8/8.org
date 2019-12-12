@@ -1,0 +1,14 @@
+#+latex_class_options: [fleqn]
+#+latex_header: \usepackage{../homework}
+
+#+title: EE341 Fall 2019 HW \jobname
+#+author: Lewis Collum
+#+date: Updated: \today
+
+* 6.1
+  Mode:
+  1. *active* \because EB has forward bias, CB has reverse bias 
+  2. *saturation* \because EB has forward bias, CB forward bias
+  3. *active* \because EB has forward bias, CB has reverse bias
+  4. *saturation* \because EB has forward bias, CB has forward bias
+  5. *saturation* \because EB has reverse bias, CB has reverse bias
