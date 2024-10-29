@@ -7,9 +7,20 @@
   includefoot]{geometry}
 
 \usepackage{siunitx}
-\usepackage{titlesec}
-\usepackage[default]{opensans}
+\usepackage[explicit]{titlesec}
+\usepackage[default]{roboto}
 \usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{enumitem}
+\setlist[enumerate]{label=\Alph*., noitemsep}
+\setlist[itemize]{noitemsep}
+
+\newcommand*\squared[1]{\tikz[baseline=(char.base)]{%
+    \node[shape=square,draw,inner sep=2pt] (char) {#1};}}
+
+\newcommand*\highlighted[1]{\tikz[baseline=(x.base)]{%
+    \node[rectangle,fill=black!20!white,draw,inner sep=2pt] (x) {#1};}}
+
 
 % https://latex.org/forum/viewtopic.php?f=46&t=8144
 \newlength\dlf 
@@ -34,14 +45,19 @@
 \end{flushleft}\egroup
 }
 
-\titleformat{\section}{\scshape}{}{0pt}{\titlerule[0.4pt]\leavevmode \\}{}
+\titleformat{\section}{\titlerule[0.4pt] \vspace{1ex} \scshape}{\highlighted{#1}}{.5em}{}
 \titlespacing{\section}{0pt}{5pt}{0pt}
 
-\titleformat{\subsection}{\small\bfseries}{}{0pt}{}{}
+\titleformat{\subsection}{\bfseries}{}{0pt}{#1}
 \titlespacing{\subsection}{0pt}{10pt}{0pt}
 
-\titleformat{\subsubsection}{\small\bfseries}{}{0pt}{}{}
-\titlespacing{\subsubsection}{0pt}{10pt}{5pt}
+\titleformat{\subsubsection}{\itshape}{}{0pt}{#1}
+\titlespacing{\subsubsection}{0pt}{10pt}{0pt}
+
+\patchcmd{\@verbatim}
+  {\verbatim@font}
+  {\verbatim@font\small}
+  {}{}
 
 \makeatother
 
@@ -52,7 +68,8 @@
   \setlength\belowdisplayshortskip{5pt}
 }
 
-\definecolor{codeBackground}{rgb}{0.9,0.9,0.9}
+\definecolor{codeBackground}{rgb}{0.92,0.92,1.0}
 
 \linespread{1.2}
 \setlength{\mathindent}{0.25in}
+\pagenumbering{gobble}
